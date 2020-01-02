@@ -1,22 +1,41 @@
 package codacytool
 
 import (
+	"bytes"
 	"fmt"
+	"log"
+	"os"
+	"strings"
 	"testing"
 )
 
-func testingTool(name, version string) (Tool, string) {
+func setup() {
+	os.Setenv(_basePathEnvVar, testsResourcesLocation)
+}
+func shutdown() {
+	os.Unsetenv(_basePathEnvVar)
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	shutdown()
+	os.Exit(code)
+}
+
+func testingTool(name, version string) (ToolDefinition, string) {
 	patternObj, patternJSON := pattern()
 	toolRepresentationAsJSON := fmt.Sprintf(`{"name":"%s","version":"%s","patterns":[%s]}`, name, version, patternJSON)
 	if version == "" {
 		toolRepresentationAsJSON = fmt.Sprintf(`{"name":"%s","patterns":[%s]}`, name, patternJSON)
 	}
-	return Tool{
+	return ToolDefinition{
 		Name:     name,
 		Version:  version,
 		Patterns: []Pattern{patternObj},
 	}, toolRepresentationAsJSON
 }
+
 func TestToolToJSON(t *testing.T) {
 	name := "govet"
 	version := "0.0.1"
@@ -46,12 +65,12 @@ func TestToolToJSONWithoutVersion(t *testing.T) {
 	}
 }
 
-func TestLoadTool(t *testing.T) {
-	patternsFile := testsResourcesLocation + "/patterns.json"
-	tool, err := LoadTool(patternsFile)
+func TestLoadToolDefinition(t *testing.T) {
+	patternsFileLocation := defaultDefinitionFile()
+	tool, err := LoadToolDefinition(patternsFileLocation)
 
 	if err != nil {
-		t.Error("Failed to load tool")
+		t.Errorf("Failed to load tool %s", patternsFileLocation)
 	}
 
 	if tool.Name != "govet" {
@@ -62,5 +81,85 @@ func TestLoadTool(t *testing.T) {
 	expectedPatterns := 1
 	if numPatterns != expectedPatterns {
 		t.Errorf("Expected: %d; Got: %d", expectedPatterns, numPatterns)
+	}
+}
+
+func TestPrintResults(t *testing.T) {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+	issue := testIssue()
+	printResult([]Issue{
+		issue,
+		issue,
+	})
+	res := strings.TrimRight(buf.String(), "\n")
+	expected, _ := issue.ToJSON()
+	expectedAsString := string(expected) + "\n" + string(expected)
+	if res != expectedAsString {
+		t.Errorf("Expected: %s; Got: %s", expected, res)
+	}
+}
+
+func TestDefaultTool(t *testing.T) {
+	tool := defaultTool()
+
+	patternsLen := len(tool.Patterns)
+	expectedLen := 1
+	if patternsLen != expectedLen {
+		t.Errorf("Expected len: %d; Got: %d", expectedLen, patternsLen)
+	}
+
+	toolName := tool.Definition.Name
+	if toolName != "govet" {
+		t.Errorf("Expected len: %s; Got: %s", "govet", toolName)
+	}
+}
+func TestPatternsFromConfig(t *testing.T) {
+	toolName := "govet"
+	configFile := defaultConfigurationFile()
+	config, err := ParseConfiguration(configFile)
+	if err != nil {
+		t.Errorf("Error parsing config file %s", configFile)
+	}
+	patterns := patternsFromConfig(toolName, config)
+
+	patternsLen := len(patterns)
+	expectedLen := 1
+	if patternsLen != expectedLen {
+		t.Errorf("Expected len: %d; Got: %d", expectedLen, patternsLen)
+	}
+	expectedID := "govet"
+	if patterns[0].PatternID != expectedID {
+		t.Errorf("Expected PatternID: %s; Got: %s", expectedID, patterns[0].PatternID)
+	}
+}
+
+type ToolImplementationTest struct{}
+
+func (i ToolImplementationTest) Run(tool Tool) ([]Issue, error) {
+	issue := testIssue()
+	return []Issue{issue}, nil
+}
+
+func TestStartTool(t *testing.T) {
+	var buf bytes.Buffer
+	log.SetOutput(&buf)
+	defer func() {
+		log.SetOutput(os.Stderr)
+	}()
+
+	impl := ToolImplementationTest{}
+	StartTool(impl)
+	issue := testIssue()
+
+	res := strings.TrimRight(buf.String(), "\n")
+
+	expected, _ := issue.ToJSON()
+	expectedAsString := string(expected)
+	if res != expectedAsString {
+		t.Errorf("Expected: %s; Got: %s", expected, res)
 	}
 }
