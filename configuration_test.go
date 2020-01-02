@@ -4,8 +4,6 @@ import (
 	"testing"
 )
 
-var testsResourcesLocation = "./resources/tests"
-
 func TestParseConfiguration(t *testing.T) {
 	location := testsResourcesLocation + "/.codacyrc"
 

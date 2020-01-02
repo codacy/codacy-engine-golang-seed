@@ -45,3 +45,22 @@ func TestToolToJSONWithoutVersion(t *testing.T) {
 		t.Errorf("Expected: %s ; Got: %s", toolJSONExpected, toolAsJSON)
 	}
 }
+
+func TestLoadTool(t *testing.T) {
+	patternsFile := testsResourcesLocation + "/patterns.json"
+	tool, err := LoadTool(patternsFile)
+
+	if err != nil {
+		t.Error("Failed to load tool")
+	}
+
+	if tool.Name != "govet" {
+		t.Errorf("Expected: %s; Got: %s", "govet", tool.Name)
+	}
+
+	numPatterns := len(tool.Patterns)
+	expectedPatterns := 1
+	if numPatterns != expectedPatterns {
+		t.Errorf("Expected: %d; Got: %d", expectedPatterns, numPatterns)
+	}
+}
