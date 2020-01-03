@@ -3,6 +3,7 @@ package codacytool
 import (
 	"encoding/json"
 	"github.com/josemiguelmelo/gofile"
+	logrus "github.com/sirupsen/logrus"
 	"log"
 )
 
@@ -44,7 +45,7 @@ func defaultTool() Tool {
 	}
 	config, err := ParseConfiguration(defaultConfigurationFile())
 	if err != nil {
-		panic(err)
+		logrus.Debug(defaultConfigurationFile() + " parsing error: " + err.Error())
 	}
 
 	return new(toolDefinition, config)
