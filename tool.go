@@ -5,6 +5,7 @@ import (
 	"github.com/josemiguelmelo/gofile"
 	logrus "github.com/sirupsen/logrus"
 	"log"
+	"os"
 )
 
 // ToolImplementation interface to implement the tool
@@ -78,7 +79,8 @@ func StartTool(impl ToolImplementation) {
 
 	result, err := impl.Run(tool)
 	if err != nil {
-		panic(err)
+		logrus.Errorln(err.Error())
+		os.Exit(1)
 	}
 
 	printResult(result)
