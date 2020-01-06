@@ -100,6 +100,11 @@ func (i *ToolDefinition) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
 }
 
+// ToJSONBeautify returns the json representation of the tool
+func (i *ToolDefinition) ToJSONBeautify() ([]byte, error) {
+	return json.MarshalIndent(i, "", "  ")
+}
+
 // LoadToolDefinition loads tool information from documentation file
 func LoadToolDefinition(fileLocation string) (ToolDefinition, error) {
 	tool := ToolDefinition{}
