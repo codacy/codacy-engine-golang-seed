@@ -7,8 +7,8 @@ import (
 // Issue is the output for each issue found by the tool
 type Issue struct {
 	PatternID string `json:"patternId"`
-	File      string `json:"file"`
-	Line      string `json:"line"`
+	File      string `json:"filename"`
+	Line      int    `json:"line"`
 	Message   string `json:"message"`
 }
 

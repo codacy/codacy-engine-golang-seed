@@ -2,6 +2,7 @@ package codacytool
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/josemiguelmelo/gofile"
 	logrus "github.com/sirupsen/logrus"
 	"log"
@@ -71,6 +72,7 @@ func printResult(issues []Issue) {
 	}
 	log.SetFlags(0)
 	log.Print(printResult)
+	fmt.Println(printResult)
 }
 
 // StartTool receives the tool implementation as parameter and run the tool
