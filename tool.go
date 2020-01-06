@@ -10,7 +10,7 @@ import (
 
 // ToolImplementation interface to implement the tool
 type ToolImplementation interface {
-	Run(tool Tool) ([]Issue, error)
+	Run(tool Tool, sourceDir string) ([]Issue, error)
 }
 
 // Tool represents a codacy tool
@@ -74,10 +74,10 @@ func printResult(issues []Issue) {
 }
 
 // StartTool receives the tool implementation as parameter and run the tool
-func StartTool(impl ToolImplementation) {
+func StartTool(impl ToolImplementation, sourceDir string) {
 	tool := defaultTool()
 
-	result, err := impl.Run(tool)
+	result, err := impl.Run(tool, sourceDir)
 	if err != nil {
 		logrus.Errorln(err.Error())
 		os.Exit(1)

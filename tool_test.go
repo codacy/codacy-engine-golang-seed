@@ -139,7 +139,7 @@ func TestPatternsFromConfig(t *testing.T) {
 
 type ToolImplementationTest struct{}
 
-func (i ToolImplementationTest) Run(tool Tool) ([]Issue, error) {
+func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error) {
 	issue := testIssue()
 	return []Issue{issue}, nil
 }
@@ -152,7 +152,7 @@ func TestStartTool(t *testing.T) {
 	}()
 
 	impl := ToolImplementationTest{}
-	StartTool(impl)
+	StartTool(impl, "./")
 	issue := testIssue()
 
 	res := strings.TrimRight(buf.String(), "\n")
