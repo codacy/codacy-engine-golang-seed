@@ -9,7 +9,7 @@ type PatternDescription struct {
 	PatternID   string             `json:"patternId"`
 	Title       string             `json:"title"`
 	Description string             `json:"description"`
-	Parameters  []PatternParameter `json:"parameters"`
+	Parameters  []PatternParameter `json:"parameters,omitempty"`
 	TimeToFix   int                `json:"timeToFix"`
 }
 
