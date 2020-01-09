@@ -19,6 +19,7 @@ workflows:
   version: 2
   compile_test_deploy:
     jobs:
+      - codacy/checkout_and_version
       - unit_test
       - codacy/tag_version:
           name: tag_version
