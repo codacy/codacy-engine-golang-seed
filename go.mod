@@ -1,4 +1,4 @@
-module github.com/codacy/codacy-engine-golang-seed
+module github.com/codacy/codacy-golang-tools-engine
 
 go 1.13
 
