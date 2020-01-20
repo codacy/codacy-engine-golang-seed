@@ -19,8 +19,8 @@ func (i *Pattern) ToJSON() ([]byte, error) {
 
 // PatternParameter parameter to customize a pattern
 type PatternParameter struct {
-	Name  string `json:"name"`
-	Value string `json:"value"`
+	Name  string      `json:"name"`
+	Value interface{} `json:"value"`
 }
 
 // ToJSON returns the json representation of the PatternParameter
