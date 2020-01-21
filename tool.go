@@ -75,8 +75,7 @@ func printResult(issues []Issue) {
 	fmt.Println(printResult)
 }
 
-// StartTool receives the tool implementation as parameter and run the tool
-func StartTool(impl ToolImplementation, sourceDir string) {
+func startToolImplementation(impl ToolImplementation, sourceDir string) {
 	tool := defaultTool()
 
 	result, err := impl.Run(tool, sourceDir)

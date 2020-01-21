@@ -152,7 +152,7 @@ func TestStartTool(t *testing.T) {
 	}()
 
 	impl := ToolImplementationTest{}
-	StartTool(impl, "./")
+	startToolImplementation(impl, "./")
 	issue := testIssue()
 
 	res := strings.TrimRight(buf.String(), "\n")
