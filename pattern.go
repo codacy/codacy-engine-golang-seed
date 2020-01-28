@@ -6,10 +6,11 @@ import (
 
 // Pattern pattern/rule inspected by tool
 type Pattern struct {
-	PatternID  string             `json:"patternId"`
-	Category   string             `json:"category,omitempty"`
-	Level      string             `json:"level,omitempty"`
-	Parameters []PatternParameter `json:"parameters,omitempty"`
+	PatternID   string             `json:"patternId"`
+	Category    string             `json:"category,omitempty"`
+	Level       string             `json:"level,omitempty"`
+	Parameters  []PatternParameter `json:"parameters,omitempty"`
+	SubCategory string             `json:"subcategory,omitempty"`
 }
 
 // ToJSON returns the json representation of the pattern
