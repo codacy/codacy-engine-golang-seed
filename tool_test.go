@@ -1,11 +1,13 @@
 package codacytool
 
 import (
-	"bytes"
 	"fmt"
+	logrus "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"log"
+
+	"io/ioutil"
+
 	"os"
 	"strings"
 	"testing"
@@ -69,20 +71,26 @@ func (suite *ToolTestSuite) TestLoadToolDefinition() {
 }
 
 func (suite *ToolTestSuite) TestPrintResults() {
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
+	r, w, oldStdout := setStdoutToBuffer()
+
 	defer func() {
-		log.SetOutput(os.Stderr)
+		logrus.SetOutput(os.Stderr)
 	}()
 	issue := testIssue()
 	printResult([]Issue{
 		issue,
 		issue,
 	})
-	res := strings.TrimRight(buf.String(), "\n")
+
+	out, _ := readStdout(r, w)
+
+	res := strings.TrimRight(string(out), "\n")
+
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected) + "\n" + string(expected)
 	assert.Equal(suite.T(), expectedAsString, res)
+
+	os.Stdout = oldStdout
 }
 
 func (suite *ToolTestSuite) TestDefaultTool() {
@@ -119,19 +127,35 @@ func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error
 }
 
 func (suite *ToolTestSuite) TestStartTool() {
-	var buf bytes.Buffer
-	log.SetOutput(&buf)
+	r, w, oldStdout := setStdoutToBuffer()
+
 	defer func() {
-		log.SetOutput(os.Stderr)
+		logrus.SetOutput(os.Stderr)
 	}()
 
 	impl := ToolImplementationTest{}
 	startToolImplementation(impl, "./")
 	issue := testIssue()
 
-	res := strings.TrimRight(buf.String(), "\n")
+	out, _ := readStdout(r, w)
+	res := strings.TrimRight(string(out), "\n")
 
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected)
-	assert.Equal(suite.T(), res, expectedAsString)
+	assert.Equal(suite.T(), expectedAsString, res)
+
+	os.Stdout = oldStdout
+}
+
+func setStdoutToBuffer() (r *os.File, w *os.File, old *os.File) {
+	oldStdout := os.Stdout
+	r, w, _ = os.Pipe()
+	os.Stdout = w
+
+	return r, w, oldStdout
+}
+
+func readStdout(r *os.File, w *os.File) ([]byte, error) {
+	w.Close()
+	return ioutil.ReadAll(r)
 }

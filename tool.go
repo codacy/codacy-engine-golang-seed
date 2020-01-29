@@ -2,10 +2,8 @@ package codacytool
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/josemiguelmelo/gofile"
 	logrus "github.com/sirupsen/logrus"
-	"log"
 	"os"
 )
 
@@ -65,14 +63,21 @@ func printResult(issues []Issue) {
 	for _, i := range issues {
 		iJSON, err := i.ToJSON()
 		if err != nil {
-			// TODO: do something
-		}
+			fileError := FileError{
+				Filename: i.File,
+				Message:  err.Error(),
+			}
 
-		printResult = appendResult(printResult, string(iJSON))
+			fileErrorJSON, _ := fileError.ToJSON()
+			printResult = appendResult(printResult, string(fileErrorJSON))
+		} else {
+			printResult = appendResult(printResult, string(iJSON))
+		}
 	}
-	log.SetFlags(0)
-	log.Print(printResult)
-	fmt.Println(printResult)
+
+	logrus.SetOutput(os.Stdout)
+	logrus.SetFormatter(&NoFormatter{})
+	logrus.Info(printResult)
 }
 
 func startToolImplementation(impl ToolImplementation, sourceDir string) {
