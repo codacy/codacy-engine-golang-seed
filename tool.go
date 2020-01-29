@@ -2,7 +2,6 @@ package codacytool
 
 import (
 	"encoding/json"
-	"github.com/josemiguelmelo/gofile"
 	logrus "github.com/sirupsen/logrus"
 	"os"
 )
@@ -112,6 +111,6 @@ func (i *ToolDefinition) ToJSONBeautify() ([]byte, error) {
 // LoadToolDefinition loads tool information from documentation file
 func LoadToolDefinition(fileLocation string) (ToolDefinition, error) {
 	tool := ToolDefinition{}
-	err := gofile.ParseJSONFile(fileLocation, &tool)
+	err := parseJSONFile(fileLocation, &tool)
 	return tool, err
 }
