@@ -3,24 +3,24 @@ package codacytool
 import (
 	"bytes"
 	"fmt"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 	"log"
 	"os"
 	"strings"
 	"testing"
 )
 
-func setup() {
-	os.Setenv(_basePathEnvVar, testsResourcesLocation)
-}
-func shutdown() {
-	os.Unsetenv(_basePathEnvVar)
+type ToolTestSuite struct {
+	suite.Suite
 }
 
-func TestMain(m *testing.M) {
-	setup()
-	code := m.Run()
-	shutdown()
-	os.Exit(code)
+func TestExampleTestSuite(t *testing.T) {
+	suite.Run(t, new(ToolTestSuite))
+}
+
+func (suite *ToolTestSuite) SetupTest() {
+	toolConfigsBasePathFlag = &testsResourcesLocation
 }
 
 func testingTool(name, version string) (ToolDefinition, string) {
@@ -36,55 +36,39 @@ func testingTool(name, version string) (ToolDefinition, string) {
 	}, toolRepresentationAsJSON
 }
 
-func TestToolToJSON(t *testing.T) {
+func (suite *ToolTestSuite) TestToolToJSON() {
 	name := "govet"
 	version := "0.0.1"
 	tool, toolJSONExpected := testingTool(name, version)
 	toolAsJSON, err := tool.ToJSON()
 
-	if err != nil {
-		t.Error("Failed converting to JSON")
-	}
-
-	if string(toolAsJSON) != toolJSONExpected {
-		t.Errorf("Expected: %s ; Got: %s", toolJSONExpected, toolAsJSON)
-	}
+	assert.Nil(suite.T(), err, "Failed converting to JSON")
+	assert.Equal(suite.T(), toolJSONExpected, string(toolAsJSON), "Failed converting to JSON")
 }
 
-func TestToolToJSONWithoutVersion(t *testing.T) {
+func (suite *ToolTestSuite) TestToolToJSONWithoutVersion() {
 	name := "govet"
 	tool, toolJSONExpected := testingTool(name, "")
 	toolAsJSON, err := tool.ToJSON()
 
-	if err != nil {
-		t.Error("Failed converting to JSON")
-	}
-
-	if string(toolAsJSON) != toolJSONExpected {
-		t.Errorf("Expected: %s ; Got: %s", toolJSONExpected, toolAsJSON)
-	}
+	assert.Nil(suite.T(), err, "Failed converting to JSON")
+	assert.Equal(suite.T(), toolJSONExpected, string(toolAsJSON), "Failed converting to JSON")
 }
 
-func TestLoadToolDefinition(t *testing.T) {
+func (suite *ToolTestSuite) TestLoadToolDefinition() {
 	patternsFileLocation := defaultDefinitionFile()
 	tool, err := LoadToolDefinition(patternsFileLocation)
 
-	if err != nil {
-		t.Errorf("Failed to load tool %s", patternsFileLocation)
-	}
-
-	if tool.Name != "govet" {
-		t.Errorf("Expected: %s; Got: %s", "govet", tool.Name)
-	}
+	assert.Nil(suite.T(), err, "Failed to load tool %s", patternsFileLocation)
+	assert.Equal(suite.T(), "govet", tool.Name)
 
 	numPatterns := len(tool.Patterns)
 	expectedPatterns := 1
-	if numPatterns != expectedPatterns {
-		t.Errorf("Expected: %d; Got: %d", expectedPatterns, numPatterns)
-	}
+
+	assert.Equal(suite.T(), expectedPatterns, numPatterns)
 }
 
-func TestPrintResults(t *testing.T) {
+func (suite *ToolTestSuite) TestPrintResults() {
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
 	defer func() {
@@ -98,43 +82,33 @@ func TestPrintResults(t *testing.T) {
 	res := strings.TrimRight(buf.String(), "\n")
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected) + "\n" + string(expected)
-	if res != expectedAsString {
-		t.Errorf("Expected: %s; Got: %s", expected, res)
-	}
+	assert.Equal(suite.T(), expectedAsString, res)
 }
 
-func TestDefaultTool(t *testing.T) {
+func (suite *ToolTestSuite) TestDefaultTool() {
 	tool := defaultTool()
 
 	patternsLen := len(tool.Patterns)
 	expectedLen := 1
-	if patternsLen != expectedLen {
-		t.Errorf("Expected len: %d; Got: %d", expectedLen, patternsLen)
-	}
+	assert.Equal(suite.T(), expectedLen, patternsLen)
 
 	toolName := tool.Definition.Name
-	if toolName != "govet" {
-		t.Errorf("Expected len: %s; Got: %s", "govet", toolName)
-	}
+	assert.Equal(suite.T(), "govet", toolName)
 }
-func TestPatternsFromConfig(t *testing.T) {
+func (suite *ToolTestSuite) TestPatternsFromConfig() {
 	toolName := "govet"
 	configFile := defaultConfigurationFile()
 	config, err := ParseConfiguration(configFile)
-	if err != nil {
-		t.Errorf("Error parsing config file %s", configFile)
-	}
+	assert.Nil(suite.T(), err, "Error parsing config file %s", configFile)
+
 	patterns := patternsFromConfig(toolName, config)
 
 	patternsLen := len(patterns)
 	expectedLen := 1
-	if patternsLen != expectedLen {
-		t.Errorf("Expected len: %d; Got: %d", expectedLen, patternsLen)
-	}
+	assert.Equal(suite.T(), expectedLen, patternsLen)
+
 	expectedID := "govet"
-	if patterns[0].PatternID != expectedID {
-		t.Errorf("Expected PatternID: %s; Got: %s", expectedID, patterns[0].PatternID)
-	}
+	assert.Equal(suite.T(), expectedID, patterns[0].PatternID)
 }
 
 type ToolImplementationTest struct{}
@@ -144,7 +118,7 @@ func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error
 	return []Issue{issue}, nil
 }
 
-func TestStartTool(t *testing.T) {
+func (suite *ToolTestSuite) TestStartTool() {
 	var buf bytes.Buffer
 	log.SetOutput(&buf)
 	defer func() {
@@ -159,7 +133,5 @@ func TestStartTool(t *testing.T) {
 
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected)
-	if res != expectedAsString {
-		t.Errorf("Expected: %s; Got: %s", expected, res)
-	}
+	assert.Equal(suite.T(), res, expectedAsString)
 }

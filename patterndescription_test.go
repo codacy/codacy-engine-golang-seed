@@ -2,6 +2,7 @@ package codacytool
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -21,11 +22,7 @@ func TestPatternDescriptionToJSON(t *testing.T) {
 	patternDescr, patternDescrJSONExpected := patternDescription()
 	patternDescrAsJSON, err := patternDescr.ToJSON()
 
-	if err != nil {
-		t.Error("Failed converting to JSON")
-	}
+	assert.Nil(t, err, "Failed converting to JSON")
 
-	if string(patternDescrAsJSON) != patternDescrJSONExpected {
-		t.Errorf("Expected: %s ; Got: %s", patternDescrJSONExpected, patternDescrAsJSON)
-	}
+	assert.Equal(t, patternDescrJSONExpected, string(patternDescrAsJSON))
 }

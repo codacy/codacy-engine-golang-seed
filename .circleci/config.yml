@@ -9,7 +9,8 @@ jobs:
       - image: circleci/golang:1.13
     working_directory: ~/workdir
     steps:
-      - checkout
+      - attach_workspace: 
+          at: ~/workdir
       - run:
           name: Run go test
           command: go test
@@ -19,7 +20,9 @@ workflows:
   compile_test_deploy:
     jobs:
       - codacy/checkout_and_version
-      - unit_test
+      - unit_test:
+          requires:
+            - codacy/checkout_and_version
       - codacy/tag_version:
           name: tag_version
           context: CodacyAWS

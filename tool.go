@@ -31,7 +31,7 @@ func patternsFromConfig(toolName string, config Configuration) []Pattern {
 	return []Pattern{}
 }
 
-func new(toolDefinition ToolDefinition, config Configuration) Tool {
+func newTool(toolDefinition ToolDefinition, config Configuration) Tool {
 	return Tool{
 		Definition: toolDefinition,
 		config:     config,
@@ -50,7 +50,7 @@ func defaultTool() Tool {
 		logrus.Debug(defaultConfigurationFile() + " parsing error: " + err.Error())
 	}
 
-	return new(toolDefinition, config)
+	return newTool(toolDefinition, config)
 }
 
 func appendResult(currentResultString, newResult string) string {

@@ -20,8 +20,6 @@ const (
 func StartTool(impl ToolImplementation) {
 	parseFlags()
 
-	os.Setenv("TOOL_CONFIGS_BASEPATH", *toolConfigsBasePathFlag)
-
 	runWithTimeout(impl, timeoutSeconds())
 }
 

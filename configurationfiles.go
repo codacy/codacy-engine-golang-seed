@@ -1,16 +1,15 @@
 package codacytool
 
-import (
-	"os"
-)
-
 var _toolFilesBasePath = "/"
 var _defaultDefinitionFile = "docs/patterns.json"
 var _defaultConfigurationFile = ".codacyrc"
 var _basePathEnvVar = "TOOL_CONFIGS_BASEPATH"
 
 func getBasePath() string {
-	basePathFromEnv := os.Getenv(_basePathEnvVar)
+	var basePathFromEnv string
+	if toolConfigsBasePathFlag != nil {
+		basePathFromEnv = *toolConfigsBasePathFlag
+	}
 	if basePathFromEnv != "" {
 		return basePathFromEnv
 	}

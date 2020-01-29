@@ -19,6 +19,7 @@ require (
 	github.com/reconquest/barely v0.0.0-20160729074550-0f12e3bb2e13 // indirect
 	github.com/reconquest/loreley v0.0.0-20190408221007-9e95b93c818f // indirect
 	github.com/sirupsen/logrus v1.4.2
+	github.com/stretchr/testify v1.4.0
 	golang.org/x/crypto v0.0.0-20191227163750-53104e6ec876 // indirect
 	golang.org/x/sys v0.0.0-20200103143344-a1369afcdac7 // indirect
 	golang.org/x/tools v0.0.0-20200102200121-6de373a2766c // indirect

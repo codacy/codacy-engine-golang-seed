@@ -2,6 +2,7 @@ package codacytool
 
 import (
 	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -25,7 +26,6 @@ func TestIssueToJSON(t *testing.T) {
 		t.Error("Failed converting to JSON")
 	}
 	expectedJSON := fmt.Sprintf(`{"patternId":"%s","filename":"%s","line":%d,"message":"%s"}`, issue.PatternID, issue.File, issue.Line, issue.Message)
-	if string(issueAsJSON) != expectedJSON {
-		t.Errorf("Expected: %s; Got: %s", expectedJSON, issueAsJSON)
-	}
+
+	assert.Equal(t, expectedJSON, string(issueAsJSON))
 }
