@@ -1,3 +1,5 @@
 package codacytool
 
-var testsResourcesLocation = "./tests/"
+const (
+	testsResourcesLocation = "./tests/"
+)

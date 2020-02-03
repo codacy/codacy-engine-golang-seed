@@ -20,6 +20,14 @@ func TestParseConfiguration(t *testing.T) {
 	assert.Equal(t, expected, got)
 }
 
+func TestParseEmptyConfiguration(t *testing.T) {
+	location := filepath.Join(testsResourcesLocation, configurationTestResources, ".codacyrc.empty")
+
+	_, err := ParseConfiguration(location)
+
+	assert.NotNil(t, err)
+}
+
 func TestParseInvalidConfiguration(t *testing.T) {
 	location := filepath.Join(testsResourcesLocation, configurationTestResources, ".codacyrc.invalid")
 	configuration, err := ParseConfiguration(location)

@@ -2,7 +2,6 @@ package codacytool
 
 import (
 	"fmt"
-	logrus "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"path/filepath"
@@ -78,9 +77,6 @@ func (suite *ToolTestSuite) TestLoadToolDefinition() {
 func (suite *ToolTestSuite) TestPrintResults() {
 	r, w, oldStdout := setStdoutToBuffer()
 
-	defer func() {
-		logrus.SetOutput(os.Stderr)
-	}()
 	issue := testIssue()
 	printResult([]Issue{
 		issue,
