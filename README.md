@@ -30,8 +30,6 @@ Then, on the main function you just need to instantiate it and pass to engine's 
 As an example:
 
 ```
-
-
 // GoTool tool implementation
 type GoTool struct {
 }

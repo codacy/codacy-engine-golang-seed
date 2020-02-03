@@ -37,14 +37,14 @@ func newTool(toolDefinition ToolDefinition, config Configuration) Tool {
 	}
 }
 
-func defaultTool() Tool {
-	toolDefinition, err := LoadToolDefinition(defaultDefinitionFile())
+func defaultTool(runConfig RunConfiguration) Tool {
+	toolDefinition, err := LoadToolDefinition(defaultDefinitionFile(runConfig.toolConfigsBasePath))
 	if err != nil {
 		panic(err)
 	}
-	config, err := ParseConfiguration(defaultConfigurationFile())
+	config, err := ParseConfiguration(defaultConfigurationFile(runConfig.toolConfigsBasePath))
 	if err != nil {
-		logrus.Debug(defaultConfigurationFile() + " parsing error: " + err.Error())
+		logrus.Debug(defaultConfigurationFile(runConfig.toolConfigsBasePath) + " parsing error: " + err.Error())
 	}
 
 	return newTool(toolDefinition, config)
@@ -79,10 +79,10 @@ func printResult(issues []Issue) {
 	logrus.Info(printResult)
 }
 
-func startToolImplementation(impl ToolImplementation, sourceDir string) {
-	tool := defaultTool()
+func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) {
+	tool := defaultTool(runConfiguration)
 
-	result, err := impl.Run(tool, sourceDir)
+	result, err := impl.Run(tool, runConfiguration.sourceDir)
 	if err != nil {
 		logrus.Errorln(err.Error())
 		os.Exit(1)

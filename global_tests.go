@@ -1,3 +1,3 @@
 package codacytool
 
-var testsResourcesLocation = "./resources/tests/"
+var testsResourcesLocation = "./tests/"

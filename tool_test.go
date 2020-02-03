@@ -5,6 +5,7 @@ import (
 	logrus "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"path/filepath"
 
 	"io/ioutil"
 
@@ -15,6 +16,7 @@ import (
 
 type ToolTestSuite struct {
 	suite.Suite
+	runConfig RunConfiguration
 }
 
 func TestExampleTestSuite(t *testing.T) {
@@ -22,7 +24,10 @@ func TestExampleTestSuite(t *testing.T) {
 }
 
 func (suite *ToolTestSuite) SetupTest() {
-	toolConfigsBasePathFlag = &testsResourcesLocation
+	suite.runConfig = RunConfiguration{
+		toolConfigsBasePath: filepath.Join(testsResourcesLocation, "tool"),
+		sourceDir:           "./",
+	}
 }
 
 func testingTool(name, version string) (ToolDefinition, string) {
@@ -58,7 +63,7 @@ func (suite *ToolTestSuite) TestToolToJSONWithoutVersion() {
 }
 
 func (suite *ToolTestSuite) TestLoadToolDefinition() {
-	patternsFileLocation := defaultDefinitionFile()
+	patternsFileLocation := defaultDefinitionFile(suite.runConfig.toolConfigsBasePath)
 	tool, err := LoadToolDefinition(patternsFileLocation)
 
 	assert.Nil(suite.T(), err, "Failed to load tool %s", patternsFileLocation)
@@ -94,7 +99,7 @@ func (suite *ToolTestSuite) TestPrintResults() {
 }
 
 func (suite *ToolTestSuite) TestDefaultTool() {
-	tool := defaultTool()
+	tool := defaultTool(suite.runConfig)
 
 	patternsLen := len(tool.Patterns)
 	expectedLen := 1
@@ -105,7 +110,7 @@ func (suite *ToolTestSuite) TestDefaultTool() {
 }
 func (suite *ToolTestSuite) TestPatternsFromConfig() {
 	toolName := "govet"
-	configFile := defaultConfigurationFile()
+	configFile := defaultConfigurationFile(suite.runConfig.toolConfigsBasePath)
 	config, err := ParseConfiguration(configFile)
 	assert.Nil(suite.T(), err, "Error parsing config file %s", configFile)
 
@@ -129,12 +134,8 @@ func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error
 func (suite *ToolTestSuite) TestStartTool() {
 	r, w, oldStdout := setStdoutToBuffer()
 
-	defer func() {
-		logrus.SetOutput(os.Stderr)
-	}()
-
 	impl := ToolImplementationTest{}
-	startToolImplementation(impl, "./")
+	startToolImplementation(impl, suite.runConfig)
 	issue := testIssue()
 
 	out, _ := readStdout(r, w)

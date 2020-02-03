@@ -7,10 +7,12 @@ import (
 	"time"
 )
 
-var (
-	sourceDirFlag           *string
-	toolConfigsBasePathFlag *string
-)
+// RunConfiguration contains the process run configuration
+type RunConfiguration struct {
+	sourceDir           string
+	toolConfigsBasePath string
+	timeoutDuration     time.Duration
+}
 
 const (
 	defaultTimeout = 15 * time.Minute
@@ -18,23 +20,27 @@ const (
 
 // StartTool receives the tool implementation as parameter and run the tool
 func StartTool(impl ToolImplementation) {
-	parseFlags()
+	cmdLineConfig := parseFlags()
 
-	runWithTimeout(impl, timeoutSeconds())
+	runWithTimeout(impl, cmdLineConfig)
 }
 
-func runWithTimeout(impl ToolImplementation, maxDuration time.Duration) {
+func runWithTimeout(impl ToolImplementation, runConfiguration RunConfiguration) {
 	runMethodWithTimeout(func() {
-		startToolImplementation(impl, *sourceDirFlag)
+		startToolImplementation(impl, runConfiguration)
 	}, func() {
-		fmt.Fprintf(os.Stderr, "Timeout of %s seconds exceeded", maxDuration)
+		fmt.Fprintf(os.Stderr, "Timeout of %s seconds exceeded", runConfiguration.timeoutDuration)
 		os.Exit(1)
-	}, maxDuration)
+	}, runConfiguration.timeoutDuration)
 }
 
-func parseFlags() {
-	sourceDirFlag = flag.String("sourceDir", "/src", "source to analyse folder")
-	toolConfigsBasePathFlag = flag.String("toolConfigLocation", "/", "Location of tool configuration")
+func parseFlags() RunConfiguration {
+	cmdLineConfig := RunConfiguration{
+		sourceDir:           *flag.String("sourceDir", "/src", "source to analyse folder"),
+		toolConfigsBasePath: *flag.String("toolConfigLocation", "/", "Location of tool configuration"),
+		timeoutDuration:     timeoutSeconds(),
+	}
 
 	flag.Parse()
+	return cmdLineConfig
 }

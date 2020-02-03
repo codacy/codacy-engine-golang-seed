@@ -1,0 +1,19 @@
+{
+  "files" : ["foo/bar/baz.go", "foo2/bar/baz.go"],
+  "tools":[
+    {
+      "name":"govet",
+      "patterns":[
+        {
+          "patternId":"govet",
+          "parameters":[
+            {
+              "name":"govet",
+              "value":"vars"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

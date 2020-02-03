@@ -1,30 +1,30 @@
 package codacytool
 
+import (
+	"path/filepath"
+)
+
 const (
 	toolFilesBasePath         = "/"
 	defaultDefinitionFileName = "docs/patterns.json"
 	defaultConfigFileName     = ".codacyrc"
 )
 
-func getBasePath() string {
-	var basePathFromEnv string
-	if toolConfigsBasePathFlag != nil {
-		basePathFromEnv = *toolConfigsBasePathFlag
-	}
-	if basePathFromEnv != "" {
-		return basePathFromEnv
+func getBasePath(toolConfigsBasePath string) string {
+	if toolConfigsBasePath != "" {
+		return toolConfigsBasePath
 	}
 	return toolFilesBasePath
 }
 
-func getPathToFile(file string) string {
-	return getBasePath() + file
+func getPathToFile(toolConfigsBasePath string, file string) string {
+	return filepath.Join(getBasePath(toolConfigsBasePath), file)
 }
 
-func defaultDefinitionFile() string {
-	return getPathToFile(defaultDefinitionFileName)
+func defaultDefinitionFile(toolConfigsBasePath string) string {
+	return getPathToFile(toolConfigsBasePath, defaultDefinitionFileName)
 }
 
-func defaultConfigurationFile() string {
-	return getPathToFile(defaultConfigFileName)
+func defaultConfigurationFile(toolConfigsBasePath string) string {
+	return getPathToFile(toolConfigsBasePath, defaultConfigFileName)
 }
