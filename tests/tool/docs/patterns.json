@@ -1,5 +1,5 @@
 {
-    "name": "govet",
+    "name": "gorevive",
     "version": "1.0.0",
     "patterns": [
         {

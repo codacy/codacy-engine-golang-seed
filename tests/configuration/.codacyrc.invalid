@@ -2,13 +2,13 @@
   "files" : ["foo/bar/baz.go", "foo2/bar/baz.go"],
   "tool":[
     {
-      "name":"govet",
+      "name":"gorevive",
       "patterns":[
         {
-          "patternId":"govet",
+          "patternId":"gorevive",
           "parameters":[
             {
-              "name":"govet",
+              "name":"gorevive",
               "value":"vars"
             }
           ]

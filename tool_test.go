@@ -43,7 +43,7 @@ func testingTool(name, version string) (ToolDefinition, string) {
 }
 
 func (suite *ToolTestSuite) TestToolToJSON() {
-	name := "govet"
+	name := "gorevive"
 	version := "0.0.1"
 	tool, toolJSONExpected := testingTool(name, version)
 	toolAsJSON, err := tool.ToJSON()
@@ -53,7 +53,7 @@ func (suite *ToolTestSuite) TestToolToJSON() {
 }
 
 func (suite *ToolTestSuite) TestToolToJSONWithoutVersion() {
-	name := "govet"
+	name := "gorevive"
 	tool, toolJSONExpected := testingTool(name, "")
 	toolAsJSON, err := tool.ToJSON()
 
@@ -66,7 +66,7 @@ func (suite *ToolTestSuite) TestLoadToolDefinition() {
 	tool, err := LoadToolDefinition(patternsFileLocation)
 
 	assert.Nil(suite.T(), err, "Failed to load tool %s", patternsFileLocation)
-	assert.Equal(suite.T(), "govet", tool.Name)
+	assert.Equal(suite.T(), "gorevive", tool.Name)
 
 	numPatterns := len(tool.Patterns)
 	expectedPatterns := 1
@@ -102,10 +102,10 @@ func (suite *ToolTestSuite) TestDefaultTool() {
 	assert.Equal(suite.T(), expectedLen, patternsLen)
 
 	toolName := tool.Definition.Name
-	assert.Equal(suite.T(), "govet", toolName)
+	assert.Equal(suite.T(), "gorevive", toolName)
 }
 func (suite *ToolTestSuite) TestPatternsFromConfig() {
-	toolName := "govet"
+	toolName := "gorevive"
 	configFile := defaultConfigurationFile(suite.runConfig.toolConfigsBasePath)
 	config, err := ParseConfiguration(configFile)
 	assert.Nil(suite.T(), err, "Error parsing config file %s", configFile)
@@ -116,7 +116,7 @@ func (suite *ToolTestSuite) TestPatternsFromConfig() {
 	expectedLen := 1
 	assert.Equal(suite.T(), expectedLen, patternsLen)
 
-	expectedID := "govet"
+	expectedID := "gorevive"
 	assert.Equal(suite.T(), expectedID, patterns[0].PatternID)
 }
 
