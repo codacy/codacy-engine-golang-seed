@@ -7,7 +7,7 @@ import (
 
 func TestGetBasePath(t *testing.T) {
 	basePath := getBasePath()
-	assert.Equal(t, _toolFilesBasePath, basePath)
+	assert.Equal(t, toolFilesBasePath, basePath)
 }
 
 func TestGetPathToFile(t *testing.T) {
@@ -18,13 +18,13 @@ func TestGetPathToFile(t *testing.T) {
 }
 
 func TestDefaultDefinitionFile(t *testing.T) {
-	expectedPath := getPathToFile(_defaultDefinitionFile)
+	expectedPath := getPathToFile(defaultDefinitionFileName)
 	path := defaultDefinitionFile()
 	assert.Equal(t, expectedPath, path)
 }
 
 func TestDefaultConfigurationFile(t *testing.T) {
-	expectedPath := getPathToFile(_defaultConfigurationFile)
+	expectedPath := getPathToFile(defaultConfigFileName)
 	path := defaultConfigurationFile()
 	assert.Equal(t, expectedPath, path)
 }

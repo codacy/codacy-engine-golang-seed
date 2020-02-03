@@ -1,9 +1,10 @@
 package codacytool
 
-var _toolFilesBasePath = "/"
-var _defaultDefinitionFile = "docs/patterns.json"
-var _defaultConfigurationFile = ".codacyrc"
-var _basePathEnvVar = "TOOL_CONFIGS_BASEPATH"
+const (
+	toolFilesBasePath         = "/"
+	defaultDefinitionFileName = "docs/patterns.json"
+	defaultConfigFileName     = ".codacyrc"
+)
 
 func getBasePath() string {
 	var basePathFromEnv string
@@ -13,7 +14,7 @@ func getBasePath() string {
 	if basePathFromEnv != "" {
 		return basePathFromEnv
 	}
-	return _toolFilesBasePath
+	return toolFilesBasePath
 }
 
 func getPathToFile(file string) string {
@@ -21,9 +22,9 @@ func getPathToFile(file string) string {
 }
 
 func defaultDefinitionFile() string {
-	return getPathToFile(_defaultDefinitionFile)
+	return getPathToFile(defaultDefinitionFileName)
 }
 
 func defaultConfigurationFile() string {
-	return getPathToFile(_defaultConfigurationFile)
+	return getPathToFile(defaultConfigFileName)
 }
