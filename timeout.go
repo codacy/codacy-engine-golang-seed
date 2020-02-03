@@ -1,6 +1,7 @@
 package codacytool
 
 import (
+	"context"
 	"os"
 	"strconv"
 	"time"
@@ -22,14 +23,19 @@ func timeoutSeconds() time.Duration {
 }
 
 func runMethodWithTimeout(method func(), timeoutExceeded func(), maxDuration time.Duration) {
-	c1 := make(chan string, 1)
+	ctx := context.Background()
+
+	c1 := make(chan struct{})
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	defer cancel()
+
 	go func() {
 		method()
-		c1 <- ""
+		c1 <- struct{}{}
 	}()
 	select {
 	case <-c1:
-	case <-time.After(maxDuration):
+	case <-ctx.Done():
 		timeoutExceeded()
 	}
 }
