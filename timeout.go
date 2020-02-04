@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+type runToolMethod func() ([]Issue, error)
+type timeoutExceededMethod func()
+type toolRunResult struct {
+	results []Issue
+	err     error
+}
+
 func timeoutSeconds() time.Duration {
 	value, exists := os.LookupEnv("TIMEOUT_SECONDS")
 
@@ -22,20 +29,26 @@ func timeoutSeconds() time.Duration {
 	return time.Duration(seconds) * time.Second
 }
 
-func runMethodWithTimeout(method func(), timeoutExceeded func(), maxDuration time.Duration) {
+func runToolWithTimeout(method runToolMethod, timeoutExceeded timeoutExceededMethod, maxDuration time.Duration) {
 	ctx := context.Background()
-
-	c1 := make(chan struct{})
-	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
+	c1 := make(chan toolRunResult, 1)
+	ctx, cancel := context.WithTimeout(ctx, maxDuration)
 	defer cancel()
 
-	go func() {
-		method()
-		c1 <- struct{}{}
-	}()
+	go callTool(method, c1)
+
 	select {
-	case <-c1:
+	case runResult := <-c1:
+		printResult(runResult.results, runResult.err)
 	case <-ctx.Done():
 		timeoutExceeded()
+	}
+}
+
+func callTool(method runToolMethod, c1 chan toolRunResult) {
+	result, err := method()
+	c1 <- toolRunResult{
+		results: result,
+		err:     err,
 	}
 }

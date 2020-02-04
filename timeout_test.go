@@ -29,11 +29,16 @@ func TestTimeoutFinish(t *testing.T) {
 	buf := prepareLogging()
 	expectedError := "Timeout of 1 seconds exceeded"
 
-	runMethodWithTimeout(func() {
+	callToolTimeoutMock := func() ([]Issue, error) {
 		time.Sleep(5 * time.Second)
-	}, func() {
+		return nil, nil
+	}
+
+	handleTimeoutMock := func() {
 		logrus.Info(expectedError)
-	}, 200*time.Millisecond)
+	}
+
+	runToolWithTimeout(callToolTimeoutMock, handleTimeoutMock, 200*time.Millisecond)
 
 	result := waitForIo(*buf)
 	assert.Equal(t, expectedError, result)
@@ -43,11 +48,16 @@ func TestTimeoutNotEnd(t *testing.T) {
 	buf := prepareLogging()
 	expectedSuccess := "Run success"
 
-	runMethodWithTimeout(func() {
+	callToolNoTimeoutMock := func() ([]Issue, error) {
 		logrus.Info(expectedSuccess)
-	}, func() {
+		return nil, nil
+	}
+
+	handleTimeoutMock := func() {
 		logrus.Info("not expected error")
-	}, 200*time.Millisecond)
+	}
+
+	runToolWithTimeout(callToolNoTimeoutMock, handleTimeoutMock, 200*time.Millisecond)
 
 	result := waitForIo(*buf)
 	assert.Equal(t, expectedSuccess, result)

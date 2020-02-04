@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	logrus "github.com/sirupsen/logrus"
 	"os"
+	"strings"
 )
 
 // ToolImplementation interface to implement the tool
@@ -56,6 +57,7 @@ func appendResult(currentResultString, newResult string) string {
 
 func resultAsString(issues []Issue) string {
 	resultString := ""
+
 	for _, i := range issues {
 		iJSON, err := i.ToJSON()
 		if err != nil {
@@ -70,26 +72,25 @@ func resultAsString(issues []Issue) string {
 			resultString = appendResult(resultString, string(iJSON))
 		}
 	}
-	return resultString
+
+	return strings.TrimSuffix(resultString, "\n")
 }
 
-func printResult(issues []Issue) {
+func printResult(issues []Issue, err error) {
+	if err != nil {
+		logrus.Fatal(err.Error())
+	}
+
 	resultString := resultAsString(issues)
 	logrus.SetOutput(os.Stdout)
 	logrus.SetFormatter(&NoFormatter{})
 	logrus.Info(resultString)
 }
 
-func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) {
+func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) ([]Issue, error) {
 	tool := defaultTool(runConfiguration)
 
-	result, err := impl.Run(tool, runConfiguration.sourceDir)
-	if err != nil {
-		logrus.Errorln(err.Error())
-		os.Exit(1)
-	}
-
-	printResult(result)
+	return impl.Run(tool, runConfiguration.sourceDir)
 }
 
 // ToolDefinition is the configuration of the tool to run

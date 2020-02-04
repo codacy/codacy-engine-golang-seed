@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -120,31 +118,15 @@ func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error
 }
 
 func (suite *ToolTestSuite) TestStartTool() {
-	r, w, oldStdout := setStdoutToBuffer()
-
 	impl := ToolImplementationTest{}
-	startToolImplementation(impl, suite.runConfig)
 	issue := testIssue()
 
-	out, _ := readStdout(r, w)
-	res := strings.TrimRight(string(out), "\n")
+	res, err := startToolImplementation(impl, suite.runConfig)
+	resAsString := resultAsString(res)
+
+	assert.Nil(suite.T(), err)
 
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected)
-	assert.Equal(suite.T(), expectedAsString, res)
-
-	os.Stdout = oldStdout
-}
-
-func setStdoutToBuffer() (r *os.File, w *os.File, old *os.File) {
-	oldStdout := os.Stdout
-	r, w, _ = os.Pipe()
-	os.Stdout = w
-
-	return r, w, oldStdout
-}
-
-func readStdout(r *os.File, w *os.File) ([]byte, error) {
-	w.Close()
-	return ioutil.ReadAll(r)
+	assert.Equal(suite.T(), expectedAsString, resAsString)
 }

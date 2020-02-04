@@ -26,12 +26,16 @@ func StartTool(impl ToolImplementation) {
 }
 
 func runWithTimeout(impl ToolImplementation, runConfiguration RunConfiguration) {
-	runMethodWithTimeout(func() {
-		startToolImplementation(impl, runConfiguration)
-	}, func() {
+	callTool := func() ([]Issue, error) {
+		return startToolImplementation(impl, runConfiguration)
+	}
+
+	handleTimeout := func() {
 		fmt.Fprintf(os.Stderr, "Timeout of %s seconds exceeded", runConfiguration.timeoutDuration)
 		os.Exit(1)
-	}, runConfiguration.timeoutDuration)
+	}
+
+	runToolWithTimeout(callTool, handleTimeout, runConfiguration.timeoutDuration)
 }
 
 func parseFlags() RunConfiguration {
