@@ -76,11 +76,7 @@ func resultAsString(issues []Issue) string {
 	return strings.TrimSuffix(resultString, "\n")
 }
 
-func printResult(issues []Issue, err error) {
-	if err != nil {
-		logrus.Fatal(err.Error())
-	}
-
+func printResult(issues []Issue) {
 	resultString := resultAsString(issues)
 	logrus.SetOutput(os.Stdout)
 	logrus.SetFormatter(&NoFormatter{})

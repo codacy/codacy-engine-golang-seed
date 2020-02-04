@@ -3,7 +3,7 @@ package codacytool
 import (
 	"flag"
 	"fmt"
-	"os"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -22,20 +22,31 @@ const (
 func StartTool(impl ToolImplementation) {
 	cmdLineConfig := parseFlags()
 
-	runWithTimeout(impl, cmdLineConfig)
+	toolRunRes := runWithTimeout(impl, cmdLineConfig)
+
+	printResult(toolRunRes)
 }
 
-func runWithTimeout(impl ToolImplementation, runConfiguration RunConfiguration) {
-	callTool := func() ([]Issue, error) {
-		return startToolImplementation(impl, runConfiguration)
+func runTool(impl ToolImplementation, runConfiguration RunConfiguration) []Issue {
+	res, err := startToolImplementation(impl, runConfiguration)
+	if err != nil {
+		logrus.Fatal(err.Error())
 	}
 
-	handleTimeout := func() {
-		fmt.Fprintf(os.Stderr, "Timeout of %s seconds exceeded", runConfiguration.timeoutDuration)
-		os.Exit(1)
+	return res
+}
+
+func runWithTimeout(impl ToolImplementation, runConfiguration RunConfiguration) []Issue {
+	runToolCall := func() []Issue {
+		return runTool(impl, runConfiguration)
 	}
 
-	runToolWithTimeout(callTool, handleTimeout, runConfiguration.timeoutDuration)
+	result, err := runToolCallWithTimeout(runToolCall, runConfiguration.timeoutDuration)
+	if err != nil {
+		logrus.Fatal(fmt.Sprintf("Timeout of %s seconds exceeded", runConfiguration.timeoutDuration))
+	}
+
+	return result
 }
 
 func parseFlags() RunConfiguration {

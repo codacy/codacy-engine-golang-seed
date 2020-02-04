@@ -1,64 +1,37 @@
 package codacytool
 
 import (
-	"bytes"
-	logrus "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"testing"
 	"time"
 )
 
-func waitForIo(buf bytes.Buffer) string {
-	for {
-		l, err := buf.ReadString('\n')
-		if err != nil {
-			return l
-		}
-	}
-}
-
-func prepareLogging() *bytes.Buffer {
-	var buf bytes.Buffer
-	logrus.SetFormatter(&NoFormatter{})
-	logrus.SetOutput(&buf)
-	return &buf
-}
-
 func TestTimeoutFinish(t *testing.T) {
-	buf := prepareLogging()
-	expectedError := "Timeout of 1 seconds exceeded"
+	expectedError := "Timeout exceeded"
 
-	callToolTimeoutMock := func() ([]Issue, error) {
+	callToolTimeoutMock := func() []Issue {
 		time.Sleep(5 * time.Second)
-		return nil, nil
+		return []Issue{}
 	}
 
-	handleTimeoutMock := func() {
-		logrus.Info(expectedError)
-	}
+	_, err := runToolCallWithTimeout(callToolTimeoutMock, 200*time.Millisecond)
 
-	runToolWithTimeout(callToolTimeoutMock, handleTimeoutMock, 200*time.Millisecond)
-
-	result := waitForIo(*buf)
-	assert.Equal(t, expectedError, result)
+	assert.NotNil(t, err)
+	assert.Equal(t, expectedError, err.Error())
 }
 
 func TestTimeoutNotEnd(t *testing.T) {
-	buf := prepareLogging()
-	expectedSuccess := "Run success"
-
-	callToolNoTimeoutMock := func() ([]Issue, error) {
-		logrus.Info(expectedSuccess)
-		return nil, nil
+	expectedSuccess := []Issue{
+		testIssue(),
 	}
 
-	handleTimeoutMock := func() {
-		logrus.Info("not expected error")
+	callToolNoTimeoutMock := func() []Issue {
+		return expectedSuccess
 	}
 
-	runToolWithTimeout(callToolNoTimeoutMock, handleTimeoutMock, 200*time.Millisecond)
+	result, err := runToolCallWithTimeout(callToolNoTimeoutMock, 200*time.Millisecond)
 
-	result := waitForIo(*buf)
+	assert.Nil(t, err)
 	assert.Equal(t, expectedSuccess, result)
 }

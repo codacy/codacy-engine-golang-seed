@@ -110,13 +110,6 @@ func (suite *ToolTestSuite) TestPatternsFromConfig() {
 	assert.Equal(suite.T(), expectedID, patterns[0].PatternID)
 }
 
-type ToolImplementationTest struct{}
-
-func (i ToolImplementationTest) Run(tool Tool, sourceDir string) ([]Issue, error) {
-	issue := testIssue()
-	return []Issue{issue}, nil
-}
-
 func (suite *ToolTestSuite) TestStartTool() {
 	impl := ToolImplementationTest{}
 	issue := testIssue()
