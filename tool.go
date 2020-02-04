@@ -51,12 +51,8 @@ func defaultTool(runConfig RunConfiguration) Tool {
 	return newTool(toolDefinition, config)
 }
 
-func appendResult(currentResultString, newResult string) string {
-	return currentResultString + newResult + "\n"
-}
-
 func resultAsString(issues []Issue) string {
-	resultString := ""
+	var resultList []string
 
 	for _, i := range issues {
 		iJSON, err := i.ToJSON()
@@ -67,13 +63,13 @@ func resultAsString(issues []Issue) string {
 			}
 
 			fileErrorJSON, _ := fileError.ToJSON()
-			resultString = appendResult(resultString, string(fileErrorJSON))
+			resultList = append(resultList, string(fileErrorJSON))
 		} else {
-			resultString = appendResult(resultString, string(iJSON))
+			resultList = append(resultList, string(iJSON))
 		}
 	}
 
-	return strings.TrimSuffix(resultString, "\n")
+	return strings.Join(resultList, "\n")
 }
 
 func printResult(issues []Issue) {
