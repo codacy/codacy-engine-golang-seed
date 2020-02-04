@@ -2,8 +2,8 @@ package codacytool
 
 import (
 	"encoding/json"
+	"fmt"
 	logrus "github.com/sirupsen/logrus"
-	"os"
 	"strings"
 )
 
@@ -74,9 +74,7 @@ func resultAsString(issues []Issue) string {
 
 func printResult(issues []Issue) {
 	resultString := resultAsString(issues)
-	logrus.SetOutput(os.Stdout)
-	logrus.SetFormatter(&NoFormatter{})
-	logrus.Info(resultString)
+	fmt.Print(resultString)
 }
 
 func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) ([]Issue, error) {
