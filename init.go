@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"os"
 	"time"
 )
 
@@ -49,11 +50,19 @@ func runWithTimeout(impl ToolImplementation, runConfiguration RunConfiguration) 
 	return result
 }
 
+func getTimeoutDuration() time.Duration {
+	timeoutSecondsEnvVar, exists := os.LookupEnv("TIMEOUT_SECONDS")
+	if exists {
+		return parseTimeoutSeconds(timeoutSecondsEnvVar)
+	}
+	return defaultTimeout
+}
+
 func parseFlags() RunConfiguration {
 	cmdLineConfig := RunConfiguration{
 		sourceDir:           *flag.String("sourceDir", "/src", "source to analyse folder"),
 		toolConfigsBasePath: *flag.String("toolConfigLocation", "/", "Location of tool configuration"),
-		timeoutDuration:     timeoutSeconds(),
+		timeoutDuration:     getTimeoutDuration(),
 	}
 
 	flag.Parse()

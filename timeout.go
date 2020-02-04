@@ -3,18 +3,11 @@ package codacytool
 import (
 	"context"
 	"errors"
-	"os"
 	"strconv"
 	"time"
 )
 
-func timeoutSeconds() time.Duration {
-	value, exists := os.LookupEnv("TIMEOUT_SECONDS")
-
-	if !exists {
-		return defaultTimeout
-	}
-
+func parseTimeoutSeconds(value string) time.Duration {
 	seconds, err := strconv.Atoi(value)
 	if err != nil {
 		return defaultTimeout
