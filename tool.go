@@ -51,14 +51,11 @@ func defaultTool(runConfig RunConfiguration) Tool {
 }
 
 func appendResult(currentResultString, newResult string) string {
-	if currentResultString != "" {
-		currentResultString = currentResultString + "\n"
-	}
-	return currentResultString + newResult
+	return currentResultString + newResult + "\n"
 }
 
-func printResult(issues []Issue) {
-	printResult := ""
+func resultAsString(issues []Issue) string {
+	resultString := ""
 	for _, i := range issues {
 		iJSON, err := i.ToJSON()
 		if err != nil {
@@ -68,15 +65,19 @@ func printResult(issues []Issue) {
 			}
 
 			fileErrorJSON, _ := fileError.ToJSON()
-			printResult = appendResult(printResult, string(fileErrorJSON))
+			resultString = appendResult(resultString, string(fileErrorJSON))
 		} else {
-			printResult = appendResult(printResult, string(iJSON))
+			resultString = appendResult(resultString, string(iJSON))
 		}
 	}
+	return resultString
+}
 
+func printResult(issues []Issue) {
+	resultString := resultAsString(issues)
 	logrus.SetOutput(os.Stdout)
 	logrus.SetFormatter(&NoFormatter{})
-	logrus.Info(printResult)
+	logrus.Info(resultString)
 }
 
 func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) {
@@ -103,14 +104,13 @@ func (i *ToolDefinition) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
 }
 
-// ToJSONBeautify returns the json representation of the tool
-func (i *ToolDefinition) ToJSONBeautify() ([]byte, error) {
-	return json.MarshalIndent(i, "", "  ")
-}
-
 // LoadToolDefinition loads tool information from documentation file
 func LoadToolDefinition(fileLocation string) (ToolDefinition, error) {
 	tool := ToolDefinition{}
-	err := parseJSONFile(fileLocation, &tool)
+	jsonFileContent, err := readFile(fileLocation)
+	if err != nil {
+		return tool, err
+	}
+	err = json.Unmarshal(jsonFileContent, &tool)
 	return tool, err
 }

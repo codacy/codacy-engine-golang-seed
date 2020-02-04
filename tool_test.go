@@ -4,11 +4,9 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"path/filepath"
-
 	"io/ioutil"
-
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -75,23 +73,17 @@ func (suite *ToolTestSuite) TestLoadToolDefinition() {
 }
 
 func (suite *ToolTestSuite) TestPrintResults() {
-	r, w, oldStdout := setStdoutToBuffer()
-
 	issue := testIssue()
-	printResult([]Issue{
+	resultString := resultAsString([]Issue{
 		issue,
 		issue,
 	})
 
-	out, _ := readStdout(r, w)
-
-	res := strings.TrimRight(string(out), "\n")
+	res := strings.TrimRight(string(resultString), "\n")
 
 	expected, _ := issue.ToJSON()
 	expectedAsString := string(expected) + "\n" + string(expected)
 	assert.Equal(suite.T(), expectedAsString, res)
-
-	os.Stdout = oldStdout
 }
 
 func (suite *ToolTestSuite) TestDefaultTool() {

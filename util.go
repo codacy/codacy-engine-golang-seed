@@ -1,23 +1,16 @@
 package codacytool
 
 import (
-	"encoding/json"
 	"io/ioutil"
 	"os"
 )
 
-func parseJSONFile(fileLocation string, out interface{}) error {
+func readFile(fileLocation string) ([]byte, error) {
 	file, err := os.Open(fileLocation)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	defer file.Close()
 
-	fileContentByte, err := ioutil.ReadAll(file)
-	err = json.Unmarshal(fileContentByte, &out)
-	if err != nil {
-		return err
-	}
-	return nil
+	return ioutil.ReadAll(file)
 }
