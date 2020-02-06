@@ -1,0 +1,17 @@
+{
+    "name": "gorevive",
+    "version": "1.0.0",
+    "patterns": [
+        {
+            "patternId": "foo",
+            "category": "ErrorProne",
+            "parameters": [
+                {
+                    "name": "bar",
+                    "default": "nofunc"
+                }
+            ],
+            "level": "Warning"
+        }
+    ]
+}

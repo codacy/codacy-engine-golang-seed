@@ -1,0 +1,34 @@
+version: 2.1
+
+orbs:
+  codacy: codacy/base@2.2.1
+  
+jobs:
+  unit_test:
+    docker:
+      - image: circleci/golang:1.13
+    working_directory: ~/workdir
+    steps:
+      - attach_workspace: 
+          at: ~/workdir
+      - run:
+          name: Run go test
+          command: go test
+        
+workflows:
+  version: 2
+  compile_test_deploy:
+    jobs:
+      - codacy/checkout_and_version
+      - unit_test:
+          requires:
+            - codacy/checkout_and_version
+      - codacy/tag_version:
+          name: tag_version
+          context: CodacyAWS
+          requires:
+            - unit_test
+          filters:
+            branches:
+              only:
+                - master

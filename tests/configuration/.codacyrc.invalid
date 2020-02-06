@@ -1,0 +1,19 @@
+{
+  "files" : ["foo/bar/baz.go", "foo2/bar/baz.go"],
+  "tool":[
+    {
+      "name":"gorevive",
+      "patterns":[
+        {
+          "patternId":"gorevive",
+          "parameters":[
+            {
+              "name":"gorevive",
+              "value":"vars"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
