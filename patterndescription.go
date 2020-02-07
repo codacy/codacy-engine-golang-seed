@@ -8,9 +8,9 @@ import (
 type PatternDescription struct {
 	PatternID   string             `json:"patternId"`
 	Title       string             `json:"title"`
-	Description string             `json:"description"`
+	Description string             `json:"description,omitempty"`
 	Parameters  []PatternParameter `json:"parameters,omitempty"`
-	TimeToFix   int                `json:"timeToFix"`
+	TimeToFix   int                `json:"timeToFix,omitempty"`
 }
 
 // ToJSON returns the json representation of the pattern description
