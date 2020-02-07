@@ -32,3 +32,16 @@ workflows:
             branches:
               only:
                 - master
+      - codacy/shell:
+          name: tag_version_with_v
+          cmd: |
+            VERSION=$(cat .version)
+            echo "v$VERSION" > .version
+          persist_to_workspace: true
+          requires:
+            - tag_version
+      - codacy/tag_version:
+          name: tag_version_v
+          context: CodacyAWS
+          requires:
+            - tag_version_with_v
