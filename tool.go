@@ -34,7 +34,7 @@ func newTool(toolDefinition ToolDefinition, config Configuration) Tool {
 		Definition: toolDefinition,
 		config:     config,
 		Files:      config.Files,
-		Patterns:   patternsFromConfig(toolDefinition.Name, config),
+		Patterns:   withDefaultParameters(toolDefinition, config, patternsFromConfig(toolDefinition.Name, config)),
 	}
 }
 
