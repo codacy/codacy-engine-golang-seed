@@ -11,6 +11,7 @@ type Pattern struct {
 	Level       string             `json:"level,omitempty"`
 	Parameters  []PatternParameter `json:"parameters,omitempty"`
 	SubCategory string             `json:"subcategory,omitempty"`
+	Enabled     bool               `json:"enabled"`
 }
 
 // ToJSON returns the json representation of the pattern

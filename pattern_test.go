@@ -2,8 +2,9 @@ package codacytool
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func patternParam() (PatternParameter, string) {
@@ -20,7 +21,7 @@ func pattern() (Pattern, string) {
 		PatternID:  "foo",
 		Category:   "bar",
 		Parameters: []PatternParameter{patternParam},
-	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","parameters":[%s]}`, patternParamJSON)
+	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","parameters":[%s],"enabled":false}`, patternParamJSON)
 }
 
 func patternWithLevel() (Pattern, string) {
@@ -31,7 +32,7 @@ func patternWithLevel() (Pattern, string) {
 		Category:   "bar",
 		Level:      "warn",
 		Parameters: []PatternParameter{patternParam},
-	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","level":"warn","parameters":[%s]}`, patternParamJSON)
+	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","level":"warn","parameters":[%s],"enabled":false}`, patternParamJSON)
 }
 
 func patternWithoutParams() (Pattern, string) {
@@ -40,7 +41,7 @@ func patternWithoutParams() (Pattern, string) {
 		Category:   "bar",
 		Level:      "warn",
 		Parameters: []PatternParameter{},
-	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","level":"warn"}`)
+	}, fmt.Sprintf(`{"patternId":"foo","category":"bar","level":"warn","enabled":false}`)
 }
 
 func TestPatternToJSON(t *testing.T) {
