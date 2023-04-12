@@ -1,12 +1,12 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@2.6.2
+  codacy: codacy/base@10.2.2
 
 jobs:
   unit_test:
     docker:
-      - image: circleci/golang:1.13
+      - image: cimg/go:1.18
     working_directory: ~/workdir
     steps:
       - attach_workspace: 
