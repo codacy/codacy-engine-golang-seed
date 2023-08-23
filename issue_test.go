@@ -49,10 +49,7 @@ func TestIssueToJSON(t *testing.T) {
 func TestIssueWithSuggestionToJSON(t *testing.T) {
 	issue := testIssueWithSuggestion()
 
-	issueAsJSON, err := issue.ToJSON()
-	if err != nil {
-		t.Error("Failed converting to JSON")
-	}
+	issueAsJSON, _ := issue.ToJSON()
 	expectedJSON := fmt.Sprintf(`{"patternId":"%s","filename":"%s","line":%d,"message":"%s","suggestion":"%s"}`, issue.PatternID, issue.File, issue.Line, issue.Message, issue.Suggestion)
 
 	assert.Equal(t, expectedJSON, string(issueAsJSON))
