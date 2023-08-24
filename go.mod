@@ -1,4 +1,4 @@
-module github.com/codacy/codacy-engine-golang-seed
+module github.com/codacy/codacy-engine-golang-seed/v5
 
 go 1.18
 
