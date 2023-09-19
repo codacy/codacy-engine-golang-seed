@@ -3,9 +3,10 @@ package codacytool
 import (
 	"flag"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"os"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // RunConfiguration contains the process run configuration
@@ -59,12 +60,14 @@ func getTimeoutDuration() time.Duration {
 }
 
 func parseFlags() RunConfiguration {
-	cmdLineConfig := RunConfiguration{
-		sourceDir:           *flag.String("sourceDir", "/src", "source to analyse folder"),
-		toolConfigsBasePath: *flag.String("toolConfigLocation", "/", "Location of tool configuration"),
-		timeoutDuration:     getTimeoutDuration(),
-	}
+	sourceDirFlag := flag.String("sourceDir", "/src", "source to analyse folder")
+	toolConfigLocationFlag := flag.String("toolConfigLocation", "/", "Location of tool configuration")
 
 	flag.Parse()
-	return cmdLineConfig
+
+	return RunConfiguration{
+		sourceDir:           *sourceDirFlag,
+		toolConfigsBasePath: *toolConfigLocationFlag,
+		timeoutDuration:     getTimeoutDuration(),
+	}
 }
