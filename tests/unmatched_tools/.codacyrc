@@ -1,6 +1,6 @@
 {
   "files" : ["foo/bar/baz.go", "foo2/bar/baz.go"],
-  "tool":[
+  "tools":[
     {
       "name":"gorevive",
       "patterns":[

@@ -1,107 +1,126 @@
 package codacytool
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
-	logrus "github.com/sirupsen/logrus"
-	"strings"
+	"os"
+	"path/filepath"
+
+	"github.com/samber/lo"
+	"github.com/sirupsen/logrus"
 )
 
-// ToolImplementation interface to implement the tool
-type ToolImplementation interface {
-	Run(tool Tool, sourceDir string) ([]Issue, error)
+// Tool is the interface each tool must implement.
+type Tool interface {
+	Run(ctx context.Context, toolExecution ToolExecution) ([]Issue, error)
 }
 
-// Tool represents a codacy tool
-type Tool struct {
-	Definition ToolDefinition
-	config     Configuration
-	Patterns   []Pattern
-	Files      []string
+// ToolExecution has the data for the execution of a tool.
+type ToolExecution struct {
+	// ToolDefinition is the metadata for the tool that will execute the analysis.
+	ToolDefinition ToolDefinition
+	// SourceDir is the directory of `Files`.
+	SourceDir string
+	// Files is an array of file paths, relative to `SourceDir`, to the files that will be analysed.
+	// If undefined, the analysis should include all files inside `SourceDir`.
+	// If empty, no analysis should be made.
+	Files *[]string
+	// Patterns is an array of the patterns (rules) to be used for analysis.
+	// It can be a subset of the tool's supported patterns.
+	// If undefined, the analysis should use the tool's configuration file, if available.
+	// Otherwise, use the tool's default patterns.
+	Patterns *[]Pattern
 }
 
-func patternsFromConfig(toolName string, config Configuration) []Pattern {
-	for _, t := range config.Tools {
-		if t.Name == toolName {
-			return t.Patterns
-		}
-	}
-	return []Pattern{}
-}
-
-func newTool(toolDefinition ToolDefinition, config Configuration) Tool {
-	return Tool{
-		Definition: toolDefinition,
-		config:     config,
-		Files:      config.Files,
-		Patterns:   withDefaultParameters(toolDefinition, config, patternsFromConfig(toolDefinition.Name, config)),
-	}
-}
-
-func defaultTool(runConfig RunConfiguration) Tool {
-	toolDefinition, err := LoadToolDefinition(defaultDefinitionFile(runConfig.toolConfigsBasePath))
+func newToolExecution(runConfig RunConfiguration) (*ToolExecution, error) {
+	toolDefinition, err := loadToolDefinition(runConfig)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	config, err := ParseConfiguration(defaultConfigurationFile(runConfig.toolConfigsBasePath))
-	if err != nil {
-		logrus.Debug(defaultConfigurationFile(runConfig.toolConfigsBasePath) + " parsing error: " + err.Error())
+	logrus.Debugf("Tool definition: %+v", toolDefinition)
+
+	analysisConfig := loadAnalysisConfiguration(runConfig)
+	logrus.Debugf("Analysis configuration: %+v", analysisConfig)
+
+	var patterns *[]Pattern
+	configuredTool, exists := lo.Find(*analysisConfig.Tools, func(item ToolDefinition) bool {
+		return toolDefinition.Name == item.Name
+	})
+	// If there is no configured tool that matches the container's tool definition, patterns will be nil. The underlying tool will know what to do in that case.
+	// Otherwise we guarantee that the configured patterns have all the required parameters as specified in the container's tool definition.
+	if exists {
+		p := patternsWithDefaultParameters(*toolDefinition, configuredTool)
+		patterns = &p
 	}
 
-	return newTool(toolDefinition, config)
+	toolExecution := ToolExecution{
+		ToolDefinition: *toolDefinition,
+		SourceDir:      runConfig.SourceDir,
+		Files:          analysisConfig.Files,
+		Patterns:       patterns,
+	}
+	logrus.Debugf("Tool execution: %+v", toolExecution)
+
+	return &toolExecution, nil
 }
 
-func resultAsString(issues []Issue) string {
-	var resultList []string
+// patternsWithDefaultParameters returns the patterns of `configuredTool` with any missing parameters added, as specified by `toolDefinition`.
+func patternsWithDefaultParameters(toolDefinition, configuredTool ToolDefinition) []Pattern {
 
-	for _, i := range issues {
-		iJSON, err := i.ToJSON()
-		if err != nil {
-			fileError := FileError{
-				Filename: i.File,
-				Message:  err.Error(),
+	var patterns []Pattern
+	for _, configuredToolPattern := range configuredTool.Patterns {
+
+		// Configured pattern exists in the tool definition patterns
+		toolDefinitionPattern, exists := lo.Find(toolDefinition.Patterns, func(item Pattern) bool {
+			return configuredToolPattern.ID == item.ID
+		})
+
+		// Patterns have different number of parameters
+		if exists {
+			for _, toolDefintionPatternParam := range toolDefinitionPattern.Parameters {
+
+				// Add non-existing params to configured tool pattern params, as specified in the tool definition.
+				paramExists := lo.SomeBy(configuredToolPattern.Parameters, func(item PatternParameter) bool {
+					return toolDefintionPatternParam.Name == item.Name
+				})
+				if !paramExists {
+					logrus.Debugf("Pattern parameter added to configured tool: %+v", toolDefintionPatternParam)
+					configuredToolPattern.Parameters = append(
+						configuredToolPattern.Parameters,
+						toolDefintionPatternParam,
+					)
+				}
 			}
-
-			fileErrorJSON, _ := fileError.ToJSON()
-			resultList = append(resultList, string(fileErrorJSON))
-		} else {
-			resultList = append(resultList, string(iJSON))
 		}
+		patterns = append(patterns, configuredToolPattern)
 	}
 
-	return strings.Join(resultList, "\n")
+	return patterns
 }
 
-func printResult(issues []Issue) {
-	resultString := resultAsString(issues)
-	fmt.Print(resultString)
-}
+const defaultToolDefinitionFile = "docs/patterns.json"
 
-func startToolImplementation(impl ToolImplementation, runConfiguration RunConfiguration) ([]Issue, error) {
-	tool := defaultTool(runConfiguration)
-
-	return impl.Run(tool, runConfiguration.sourceDir)
-}
-
-// ToolDefinition is the configuration of the tool to run
+// ToolDefinition is the metadata of the tool to run.
 type ToolDefinition struct {
-	Name     string    `json:"name"`
-	Version  string    `json:"version,omitempty"`
+	Name    string `json:"name"`
+	Version string `json:"version,omitempty"`
+	// Patterns contains all of the tool's supported patterns.
 	Patterns []Pattern `json:"patterns"`
 }
 
-// ToJSON returns the json representation of the tool
-func (i *ToolDefinition) ToJSON() ([]byte, error) {
-	return json.Marshal(i)
-}
+// loadToolDefinition loads tool information from the tool definition file.
+func loadToolDefinition(runConfig RunConfiguration) (*ToolDefinition, error) {
+	fileLocation := filepath.Join(runConfig.ToolConfigurationDir, defaultToolDefinitionFile)
 
-// LoadToolDefinition loads tool information from documentation file
-func LoadToolDefinition(fileLocation string) (ToolDefinition, error) {
-	tool := ToolDefinition{}
-	jsonFileContent, err := readFile(fileLocation)
+	fileContent, err := os.ReadFile(fileLocation)
 	if err != nil {
-		return tool, err
+		return nil, fmt.Errorf("failed to read tool definition file: %s\n%w", fileLocation, err)
 	}
-	err = json.Unmarshal(jsonFileContent, &tool)
-	return tool, err
+
+	toolDefinition := ToolDefinition{}
+	if err := json.Unmarshal(fileContent, &toolDefinition); err != nil {
+		return nil, fmt.Errorf("failed to parse tool definition file: %s\n%w", string(fileContent), err)
+	}
+	return &toolDefinition, nil
 }
