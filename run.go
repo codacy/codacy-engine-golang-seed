@@ -43,22 +43,22 @@ func StartTool(tool Tool) int {
 		logrus.SetLevel(logrus.InfoLevel)
 	}
 
-	issues, retCode := runWithTimeout(tool, runConfiguration)
+	results, retCode := runWithTimeout(tool, runConfiguration)
 	if retCode != 0 {
 		return retCode
 	}
 
-	printResult(issues)
+	fmt.Print(strings.Join(results.ToJSON(), "\n"))
 	return 0
 }
 
-func runWithTimeout(tool Tool, runConfiguration RunConfiguration) ([]Issue, int) {
-	type IssuesAndRetCode struct {
-		issues  []Issue
+func runWithTimeout(tool Tool, runConfiguration RunConfiguration) (Results, int) {
+	type ResultsAndRetCode struct {
+		results Results
 		retCode int
 	}
 
-	c := make(chan IssuesAndRetCode, 1)
+	c := make(chan ResultsAndRetCode, 1)
 	ctx, cancel := context.WithTimeout(context.Background(), runConfiguration.Timeout)
 	defer cancel()
 
@@ -67,24 +67,24 @@ func runWithTimeout(tool Tool, runConfiguration RunConfiguration) ([]Issue, int)
 		if err != nil {
 			logrus.Errorf("Failed to create tool execution: %s", err.Error())
 
-			c <- IssuesAndRetCode{issues: nil, retCode: 1}
+			c <- ResultsAndRetCode{results: nil, retCode: 1}
 			return
 		}
 
-		issues, err := tool.Run(ctx, *toolExec)
+		results, err := tool.Run(ctx, *toolExec)
 		if err != nil {
 			logrus.Errorf("Failed to run the tool: %s", err.Error())
 
-			c <- IssuesAndRetCode{issues: nil, retCode: 1}
+			c <- ResultsAndRetCode{results: nil, retCode: 1}
 			return
 		}
 
-		c <- IssuesAndRetCode{issues: issues, retCode: 0}
+		c <- ResultsAndRetCode{results: results, retCode: 0}
 	}()
 
 	select {
 	case res := <-c:
-		return res.issues, res.retCode
+		return res.results, res.retCode
 	case <-ctx.Done():
 		logrus.Errorf("Failed to run the tool: Context deadline (%s) exceeded", runConfiguration.Timeout)
 		return nil, 2
@@ -125,25 +125,4 @@ func getDebug() bool {
 		}
 	}
 	return defaultDebug
-}
-
-func printResult(issues []Issue) {
-	var resultList []string
-
-	for _, i := range issues {
-		iJSON, err := i.ToJSON()
-		if err != nil {
-			fileError := FileError{
-				Filename: i.File,
-				Message:  err.Error(),
-			}
-
-			fileErrorJSON, _ := fileError.ToJSON()
-			resultList = append(resultList, string(fileErrorJSON))
-		} else {
-			resultList = append(resultList, string(iJSON))
-		}
-	}
-
-	fmt.Print(strings.Join(resultList, "\n"))
 }

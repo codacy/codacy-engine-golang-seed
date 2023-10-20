@@ -13,7 +13,7 @@ import (
 
 // Tool is the interface each tool must implement.
 type Tool interface {
-	Run(ctx context.Context, toolExecution ToolExecution) ([]Issue, error)
+	Run(ctx context.Context, toolExecution ToolExecution) ([]Result, error)
 }
 
 // ToolExecution has the data for the execution of a tool.
