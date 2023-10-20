@@ -1,25 +1,16 @@
 package codacytool
 
-import (
-	"encoding/json"
-)
-
-// Pattern pattern/rule inspected by tool
+// Pattern corresponds to a rule (pattern) inspected by the tool.
 type Pattern struct {
-	PatternID   string             `json:"patternId"`
+	ID          string             `json:"patternId"`
 	Category    string             `json:"category,omitempty"`
+	SubCategory string             `json:"subcategory,omitempty"`
 	Level       string             `json:"level,omitempty"`
 	Parameters  []PatternParameter `json:"parameters,omitempty"`
-	SubCategory string             `json:"subcategory,omitempty"`
 	Enabled     bool               `json:"enabled"`
 }
 
-// ToJSON returns the json representation of the pattern
-func (i *Pattern) ToJSON() ([]byte, error) {
-	return json.Marshal(i)
-}
-
-// PatternParameter parameter to customize a pattern
+// PatternParameter represents a parameter that can be used to customize a pattern.
 type PatternParameter struct {
 	Name        string      `json:"name"`
 	Value       interface{} `json:"value,omitempty"`
@@ -27,7 +18,11 @@ type PatternParameter struct {
 	Description string      `json:"description,omitempty"`
 }
 
-// ToJSON returns the json representation of the PatternParameter
-func (i *PatternParameter) ToJSON() ([]byte, error) {
-	return json.Marshal(i)
+// PatternDescription represents the exhaustive description of a pattern.
+type PatternDescription struct {
+	PatternID   string             `json:"patternId"`
+	Title       string             `json:"title"`
+	Description string             `json:"description,omitempty"`
+	Parameters  []PatternParameter `json:"parameters,omitempty"`
+	TimeToFix   int                `json:"timeToFix,omitempty"`
 }

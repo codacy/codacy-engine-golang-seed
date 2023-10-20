@@ -12,6 +12,15 @@
               "value":"vars"
             }
           ]
+        },
+        {
+          "patternId": "foo",
+          "parameters":[
+            {
+              "name": "some name",
+              "value": "some value"
+            }
+          ]
         }
       ]
     }
