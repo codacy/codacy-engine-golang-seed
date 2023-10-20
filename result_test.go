@@ -40,8 +40,25 @@ func TestResultsToJSON(t *testing.T) {
 	}
 }
 
+func TestResultsGetFile(t *testing.T) {
+	// Arrange
+	issue := Issue{File: "issue-file"}
+	fileError := FileError{File: "file-error"}
+
+	// Act
+	issueFile := issue.GetFile()
+	fileErrorFile := fileError.GetFile()
+
+	// Assert
+	assert.Equal(t, "issue-file", issueFile)
+	assert.Equal(t, "file-error", fileErrorFile)
+}
+
 type BadResult struct{}
 
 func (r BadResult) ToJSON() ([]byte, error) {
 	return nil, assert.AnError
+}
+func (r BadResult) GetFile() string {
+	return "not used"
 }

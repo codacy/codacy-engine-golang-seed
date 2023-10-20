@@ -10,6 +10,8 @@ import (
 type Result interface {
 	// ToJSON returns a JSON representation of the result.
 	ToJSON() ([]byte, error)
+	// GetFile returns the file for this result.
+	GetFile() string
 }
 
 // Issue is the output for each issue found by the tool.
@@ -21,9 +23,11 @@ type Issue struct {
 	Suggestion string `json:"suggestion,omitempty"`
 }
 
-// ToJSON returns the json representation of the issue
 func (i Issue) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
+}
+func (i Issue) GetFile() string {
+	return i.File
 }
 
 // FileError represents an error analysing a file.
@@ -33,9 +37,11 @@ type FileError struct {
 	Message string `json:"message"`
 }
 
-// ToJSON returns the json representation of the issue
 func (i FileError) ToJSON() ([]byte, error) {
 	return json.Marshal(i)
+}
+func (i FileError) GetFile() string {
+	return i.File
 }
 
 type Results []Result
