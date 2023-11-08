@@ -7,6 +7,7 @@ type Pattern struct {
 	SubCategory string             `json:"subcategory,omitempty"`
 	Level       string             `json:"level,omitempty"`
 	Parameters  []PatternParameter `json:"parameters,omitempty"`
+	Languages   []string           `json:"languages,omitempty"`
 	Enabled     bool               `json:"enabled"`
 }
 
