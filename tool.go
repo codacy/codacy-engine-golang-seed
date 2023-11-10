@@ -40,7 +40,10 @@ func newToolExecution(runConfig RunConfiguration) (*ToolExecution, error) {
 	}
 	logrus.Debugf("Tool definition: %+v", toolDefinition)
 
-	analysisConfig := loadAnalysisConfiguration(runConfig)
+	analysisConfig, err := loadAnalysisConfiguration(runConfig)
+	if err != nil {
+		return nil, err
+	}
 	logrus.Debugf("Analysis configuration: %+v", analysisConfig)
 
 	var patterns *[]Pattern

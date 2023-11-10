@@ -1,10 +1,10 @@
 package codacytool
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"golang.org/x/exp/slices"
 )
 
 func TestResultsToJSON(t *testing.T) {
@@ -32,8 +32,8 @@ func TestResultsToJSON(t *testing.T) {
 	// Assert
 	// Since a JSON object does not have order, we can't simply assert by doing `assert.ElementsMatch`.
 	// To guarantee that the results are in the same order for proper comparison we can simply sort them by length.
-	slices.SortFunc(jsonResults, func(a, b string) bool { return len(a) > len(b) })
-	slices.SortFunc(expectedJSONResults, func(a, b string) bool { return len(a) > len(b) })
+	sort.Slice(jsonResults, func(a, b int) bool { return len(jsonResults[a]) > len(jsonResults[b]) })
+	sort.Slice(expectedJSONResults, func(a, b int) bool { return len(expectedJSONResults[a]) > len(expectedJSONResults[b]) })
 
 	for i, jsonResult := range jsonResults {
 		assert.JSONEq(t, expectedJSONResults[i], jsonResult)

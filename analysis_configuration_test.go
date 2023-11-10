@@ -11,16 +11,19 @@ func TestLoadAnalysisConfiguration(t *testing.T) {
 	type testData struct {
 		fileLocation          string
 		expectedConfiguration AnalysisConfiguration
+		expectedError         string
 	}
 
 	testSet := map[string]testData{
 		"non-existent": {
 			fileLocation:          "non-existent",
 			expectedConfiguration: AnalysisConfiguration{},
+			expectedError:         "",
 		},
 		"invalid": {
 			fileLocation:          "configuration/invalid",
 			expectedConfiguration: AnalysisConfiguration{},
+			expectedError:         "invalid character 'i' looking for beginning of value",
 		},
 		"empty": {
 			fileLocation: "configuration/empty",
@@ -28,6 +31,7 @@ func TestLoadAnalysisConfiguration(t *testing.T) {
 				Files: &[]string{},
 				Tools: &[]ToolDefinition{},
 			},
+			expectedError: "",
 		},
 	}
 
@@ -39,10 +43,13 @@ func TestLoadAnalysisConfiguration(t *testing.T) {
 			}
 
 			// Act
-			config := loadAnalysisConfiguration(runConfig)
+			config, err := loadAnalysisConfiguration(runConfig)
 
 			// Assert
 			assert.Equal(t, testData.expectedConfiguration, config)
+			if err != nil {
+				assert.Equal(t, testData.expectedError, err.Error())
+			}
 		})
 	}
 }

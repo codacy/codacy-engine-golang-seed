@@ -17,9 +17,10 @@ type AnalysisConfiguration struct {
 }
 
 // loadAnalysisConfiguration loads the analysis configuration from the default file.
-// If the file does not exist or is not parseable as JSON, an empty AnalysisConfiguration is returned.
+// If the file does not exist, an empty AnalysisConfiguration is returned.
 // Tools should know how to deal with the absence of these values.
-func loadAnalysisConfiguration(runConfiguration RunConfiguration) AnalysisConfiguration {
+// If the file exists but is invalid, the execution is aborted.
+func loadAnalysisConfiguration(runConfiguration RunConfiguration) (AnalysisConfiguration, error) {
 	fileLocation := filepath.Join(runConfiguration.ToolConfigurationDir, defaultAnalysisConfigurationFile)
 
 	analysisConfiguration := AnalysisConfiguration{}
@@ -27,11 +28,12 @@ func loadAnalysisConfiguration(runConfiguration RunConfiguration) AnalysisConfig
 	fileContent, err := os.ReadFile(fileLocation)
 	if err != nil {
 		logrus.Infof("Failed to read analysis configuration file: %s\n%s", fileLocation, err.Error())
-		return analysisConfiguration
+		return analysisConfiguration, nil
 	}
 
-	if err := json.Unmarshal(fileContent, &analysisConfiguration); err != nil {
+	err = json.Unmarshal(fileContent, &analysisConfiguration)
+	if err != nil {
 		logrus.Infof("Failed to parse analysis configuration file content: %s\n%s", string(fileContent), err.Error())
 	}
-	return analysisConfiguration
+	return analysisConfiguration, err
 }
