@@ -52,7 +52,7 @@ func newToolExecution(runConfig RunConfiguration) (*ToolExecution, error) {
 	})
 	// If there is no configured tool that matches the container's tool definition, patterns will be nil. The underlying tool will know what to do in that case.
 	// Otherwise we guarantee that the configured patterns have all the required parameters as specified in the container's tool definition.
-	if exists {
+	if exists && configuredTool.Patterns != nil {
 		p := patternsWithDefaultParameters(*toolDefinition, configuredTool)
 		patterns = &p
 	}
@@ -72,10 +72,10 @@ func newToolExecution(runConfig RunConfiguration) (*ToolExecution, error) {
 func patternsWithDefaultParameters(toolDefinition, configuredTool ToolDefinition) []Pattern {
 
 	var patterns []Pattern
-	for _, configuredToolPattern := range configuredTool.Patterns {
+	for _, configuredToolPattern := range *configuredTool.Patterns {
 
 		// Configured pattern exists in the tool definition patterns
-		toolDefinitionPattern, exists := lo.Find(toolDefinition.Patterns, func(item Pattern) bool {
+		toolDefinitionPattern, exists := lo.Find(*toolDefinition.Patterns, func(item Pattern) bool {
 			return configuredToolPattern.ID == item.ID
 		})
 
@@ -109,7 +109,7 @@ type ToolDefinition struct {
 	Name    string `json:"name"`
 	Version string `json:"version,omitempty"`
 	// Patterns contains all of the tool's supported patterns.
-	Patterns []Pattern `json:"patterns"`
+	Patterns *[]Pattern `json:"patterns"`
 }
 
 // loadToolDefinition loads tool information from the tool definition file.

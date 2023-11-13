@@ -19,7 +19,7 @@ func TestNewToolExecution(t *testing.T) {
 		ToolDefinition: ToolDefinition{
 			Name:    "gorevive",
 			Version: "1.0.0",
-			Patterns: []Pattern{
+			Patterns: &[]Pattern{
 				{
 					ID:       "foo",
 					Category: "ErrorProne",
@@ -85,7 +85,7 @@ func TestNewToolExecution_NoMatchingToolConfigured(t *testing.T) {
 		ToolDefinition: ToolDefinition{
 			Name:    "trivy",
 			Version: "1.0.0",
-			Patterns: []Pattern{
+			Patterns: &[]Pattern{
 				{
 					ID:       "secret",
 					Category: "Security",
