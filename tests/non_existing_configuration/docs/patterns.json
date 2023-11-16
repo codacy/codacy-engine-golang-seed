@@ -1,0 +1,11 @@
+{
+    "name": "trivy",
+    "version": "1.0.0",
+    "patterns": [
+        {
+            "patternId": "secret",
+            "category": "Security",
+            "level": "Critical"
+        }
+    ]
+}

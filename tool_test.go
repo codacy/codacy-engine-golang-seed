@@ -109,3 +109,37 @@ func TestNewToolExecution_NoMatchingToolConfigured(t *testing.T) {
 		assert.Equal(t, expectedToolExecution, *toolExecution)
 	}
 }
+
+func TestNewToolExecution_NonExistingConfiguration(t *testing.T) {
+	// Arrange
+	srcDir := "sourceDir"
+	runConfig := RunConfiguration{
+		ToolConfigurationDir: filepath.Join(testsResourcesLocation, "non_existing_configuration"),
+		SourceDir:            srcDir,
+	}
+
+	expectedToolExecution := ToolExecution{
+		ToolDefinition: ToolDefinition{
+			Name:    "trivy",
+			Version: "1.0.0",
+			Patterns: &[]Pattern{
+				{
+					ID:       "secret",
+					Category: "Security",
+					Level:    "Critical",
+				},
+			},
+		},
+		Files:     nil,
+		SourceDir: runConfig.SourceDir,
+		Patterns:  nil,
+	}
+
+	// Act
+	toolExecution, err := newToolExecution(runConfig)
+
+	// Assert
+	if assert.NoError(t, err) {
+		assert.Equal(t, expectedToolExecution, *toolExecution)
+	}
+}

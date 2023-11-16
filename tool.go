@@ -47,14 +47,16 @@ func newToolExecution(runConfig RunConfiguration) (*ToolExecution, error) {
 	logrus.Debugf("Analysis configuration: %+v", analysisConfig)
 
 	var patterns *[]Pattern
-	configuredTool, exists := lo.Find(*analysisConfig.Tools, func(item ToolDefinition) bool {
-		return toolDefinition.Name == item.Name
-	})
-	// If there is no configured tool that matches the container's tool definition, patterns will be nil. The underlying tool will know what to do in that case.
-	// Otherwise we guarantee that the configured patterns have all the required parameters as specified in the container's tool definition.
-	if exists && configuredTool.Patterns != nil {
-		p := patternsWithDefaultParameters(*toolDefinition, configuredTool)
-		patterns = &p
+	if analysisConfig.Tools != nil {
+		configuredTool, exists := lo.Find(*analysisConfig.Tools, func(item ToolDefinition) bool {
+			return toolDefinition.Name == item.Name
+		})
+		// If there is no configured tool that matches the container's tool definition, patterns will be nil. The underlying tool will know what to do in that case.
+		// Otherwise we guarantee that the configured patterns have all the required parameters as specified in the container's tool definition.
+		if exists && configuredTool.Patterns != nil {
+			p := patternsWithDefaultParameters(*toolDefinition, configuredTool)
+			patterns = &p
+		}
 	}
 
 	toolExecution := ToolExecution{
