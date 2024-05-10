@@ -23,6 +23,7 @@ func TestNewToolExecution(t *testing.T) {
 				{
 					ID:       "foo",
 					Category: "ErrorProne",
+					ScanType: "SAST",
 					Level:    "Warning",
 					Parameters: []PatternParameter{
 						{
@@ -87,9 +88,11 @@ func TestNewToolExecution_NoMatchingToolConfigured(t *testing.T) {
 			Version: "1.0.0",
 			Patterns: &[]Pattern{
 				{
-					ID:       "secret",
-					Category: "Security",
-					Level:    "Critical",
+					ID:          "secret",
+					Category:    "Security",
+					Level:       "Critical",
+					SubCategory: "Cryptography",
+					ScanType:    "Secrets",
 				},
 			},
 		},

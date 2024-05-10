@@ -5,6 +5,7 @@ type Pattern struct {
 	ID          string             `json:"patternId"`
 	Category    string             `json:"category,omitempty"`
 	SubCategory string             `json:"subcategory,omitempty"`
+	ScanType    string             `json:"scanType,omitempty"`
 	Level       string             `json:"level,omitempty"`
 	Parameters  []PatternParameter `json:"parameters,omitempty"`
 	Languages   []string           `json:"languages,omitempty"`

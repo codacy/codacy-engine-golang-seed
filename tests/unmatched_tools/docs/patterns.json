@@ -5,6 +5,8 @@
         {
             "patternId": "secret",
             "category": "Security",
+            "subCategory": "Cryptography",
+            "scanType": "Secrets",
             "level": "Critical"
         }
     ]
