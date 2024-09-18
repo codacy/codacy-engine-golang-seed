@@ -3,6 +3,7 @@ package codacytool
 import (
 	"encoding/json"
 
+	"github.com/CycloneDX/cyclonedx-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,6 +43,20 @@ func (i FileError) ToJSON() ([]byte, error) {
 }
 func (i FileError) GetFile() string {
 	return i.File
+}
+
+// SBOM represents a Software Bill of Materials in the CycloneDX format.
+type SBOM struct {
+	cyclonedx.BOM
+}
+
+func (s SBOM) ToJSON() ([]byte, error) {
+	return json.Marshal(s)
+}
+
+// GetFile always returns an empty value since SBOM is for the whole project, not a single file.
+func (s SBOM) GetFile() string {
+	return ""
 }
 
 type Results []Result

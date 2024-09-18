@@ -19,15 +19,17 @@ func TestResultsToJSON(t *testing.T) {
 		File:    "file-error",
 		Message: "file-error",
 	}
+	sbom := SBOM{}
 	badResult := BadResult{}
 
 	expectedJSONResults := []string{
 		`{"filename":"file","line":5,"message":"message","patternId":"pattern ID"}`,
 		`{"filename":"file-error","message":"file-error"}`,
+		`{"bomFormat":"","specVersion":"SpecVersion(0)","version":0}`,
 	}
 
 	// Act
-	jsonResults := Results{issue, fileError, badResult}.ToJSON()
+	jsonResults := Results{issue, fileError, sbom, badResult}.ToJSON()
 
 	// Assert
 	// Since a JSON object does not have order, we can't simply assert by doing `assert.ElementsMatch`.
@@ -44,14 +46,17 @@ func TestResultsGetFile(t *testing.T) {
 	// Arrange
 	issue := Issue{File: "issue-file"}
 	fileError := FileError{File: "file-error"}
+	sbom := SBOM{}
 
 	// Act
 	issueFile := issue.GetFile()
 	fileErrorFile := fileError.GetFile()
+	sbomFile := sbom.GetFile()
 
 	// Assert
 	assert.Equal(t, "issue-file", issueFile)
 	assert.Equal(t, "file-error", fileErrorFile)
+	assert.Empty(t, sbomFile)
 }
 
 type BadResult struct{}
