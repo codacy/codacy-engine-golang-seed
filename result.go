@@ -22,6 +22,7 @@ type Issue struct {
 	Line       int    `json:"line"`
 	Message    string `json:"message"`
 	Suggestion string `json:"suggestion,omitempty"`
+	SourceID   string `json:"sourceId,omitempty"`
 }
 
 func (i Issue) ToJSON() ([]byte, error) {
