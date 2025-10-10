@@ -14,6 +14,7 @@ func TestResultsToJSON(t *testing.T) {
 		Line:      5,
 		Message:   "message",
 		PatternID: "pattern ID",
+		SourceID:  "CVE-2025-11111",
 	}
 	fileError := FileError{
 		File:    "file-error",
@@ -23,7 +24,7 @@ func TestResultsToJSON(t *testing.T) {
 	badResult := BadResult{}
 
 	expectedJSONResults := []string{
-		`{"filename":"file","line":5,"message":"message","patternId":"pattern ID"}`,
+		`{"filename":"file","line":5,"message":"message","patternId":"pattern ID", "sourceId":"CVE-2025-11111"}`,
 		`{"filename":"file-error","message":"file-error"}`,
 		`{"bomFormat":"","specVersion":"SpecVersion(0)","version":0}`,
 	}
