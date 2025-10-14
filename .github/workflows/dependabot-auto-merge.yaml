@@ -23,7 +23,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
-          github-token: ${{ secrets.AUTO_MERGE_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Approve PR and set it to auto-merge
         if: steps.metadata.outputs.update-type == 'version-update:semver-patch' || steps.metadata.outputs.update-type == 'version-update:semver-minor'
         run: |
