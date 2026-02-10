@@ -20,13 +20,17 @@ func TestResultsToJSON(t *testing.T) {
 		File:    "file-error",
 		Message: "file-error",
 	}
-	sbom := SBOM{}
+	sbom := SBOM{
+		BomFormat:   CycloneDXJSON,
+		SpecVersion: "1.6",
+		Sbom:        `{"bomFormat":"CycloneDX","specVersion":"1.6","metadata"...}`,
+	}
 	badResult := BadResult{}
 
 	expectedJSONResults := []string{
 		`{"filename":"file","line":5,"message":"message","patternId":"pattern ID", "sourceId":"CVE-2025-11111"}`,
 		`{"filename":"file-error","message":"file-error"}`,
-		`{"bomFormat":"","specVersion":"SpecVersion(0)","version":0}`,
+		`{"bomFormat":"CycloneDXJSON","specVersion":"1.6","sbom":"{\"bomFormat\":\"CycloneDX\",\"specVersion\":\"1.6\",\"metadata\"...}"}`,
 	}
 
 	// Act

@@ -3,7 +3,6 @@ module github.com/codacy/codacy-engine-golang-seed/v6
 go 1.23
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.10.0
 	github.com/samber/lo v1.52.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1

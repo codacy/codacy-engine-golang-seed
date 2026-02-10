@@ -3,7 +3,6 @@ package codacytool
 import (
 	"encoding/json"
 
-	"github.com/CycloneDX/cyclonedx-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,9 +45,29 @@ func (i FileError) GetFile() string {
 	return i.File
 }
 
-// SBOM represents a Software Bill of Materials in the CycloneDX format.
+// An "enum" representing the supported BOM formats.
+type BomFormat string
+
+const (
+	// [CycloneDX] specification in JSON format.
+	//
+	// [CycloneDX]: https://cyclonedx.org/
+	CycloneDXJSON = BomFormat("CycloneDXJSON")
+)
+
+// SBOM - Software Bill of Materials
+//
+// A SBOM declares the inventory of components used to build a software artifact, including any open source and
+// proprietary software components.
 type SBOM struct {
-	cyclonedx.BOM
+	// The format of the SBOM. Currently only [CycloneDX] specification in JSON format is supported.
+	//
+	// [CycloneDX]: https://cyclonedx.org/
+	BomFormat BomFormat `json:"bomFormat"`
+	// The version of the SBOM format used to build this SBOM.
+	SpecVersion string `json:"specVersion"`
+	// The actual SBOM content. To be parsed by downstream consumers according to `bomFormat` and `specVersion`.
+	Sbom string `json:"sbom"`
 }
 
 func (s SBOM) ToJSON() ([]byte, error) {
