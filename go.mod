@@ -3,7 +3,7 @@ module github.com/codacy/codacy-engine-golang-seed/v8
 go 1.23
 
 require (
-	github.com/samber/lo v1.52.0
+	github.com/samber/lo v1.53.0
 	github.com/sirupsen/logrus v1.9.4
 	github.com/stretchr/testify v1.11.1
 )
