@@ -2,6 +2,7 @@ package codacytool
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 )
@@ -16,15 +17,19 @@ type Result interface {
 
 // Issue is the output for each issue found by the tool.
 type Issue struct {
-	PatternID  string `json:"patternId"`
-	File       string `json:"filename"`
-	Line       int    `json:"line"`
-	Message    string `json:"message"`
-	Suggestion string `json:"suggestion,omitempty"`
-	SourceID   string `json:"sourceId,omitempty"`
+	PatternID   string          `json:"patternId"`
+	File        string          `json:"filename"`
+	Line        int             `json:"line"`
+	Message     string          `json:"message"`
+	Suggestion  string          `json:"suggestion,omitempty"`
+	SourceID    string          `json:"sourceId,omitempty"`
+	ExtraFields json.RawMessage `json:"extraFields,omitempty"`
 }
 
 func (i Issue) ToJSON() ([]byte, error) {
+	if len(i.ExtraFields) > 0 && !json.Valid(i.ExtraFields) {
+		return nil, errors.New("invalid JSON in ExtraFields")
+	}
 	return json.Marshal(i)
 }
 func (i Issue) GetFile() string {
