@@ -1,6 +1,7 @@
 package codacytool
 
 import (
+	"encoding/json"
 	"sort"
 	"testing"
 
@@ -62,6 +63,21 @@ func TestResultsGetFile(t *testing.T) {
 	assert.Equal(t, "issue-file", issueFile)
 	assert.Equal(t, "file-error", fileErrorFile)
 	assert.Empty(t, sbomFile)
+}
+
+func TestIssueExtraFieldsOmittedWhenNil(t *testing.T) {
+	issue := Issue{PatternID: "p", File: "f", Line: 1, Message: "m"}
+	b, err := issue.ToJSON()
+	assert.NoError(t, err)
+	assert.NotContains(t, string(b), "extraFields")
+}
+
+func TestIssueExtraFieldsSerializedWhenSet(t *testing.T) {
+	extra := json.RawMessage(`{"dependenciesChains":[["root","vuln"]],"CVE":"CVE-2024-1234","fixVersion":"1.2.3"}`)
+	issue := Issue{PatternID: "p", File: "f", Line: 1, Message: "m", ExtraFields: extra}
+	b, err := issue.ToJSON()
+	assert.NoError(t, err)
+	assert.JSONEq(t, `{"patternId":"p","filename":"f","line":1,"message":"m","extraFields":{"dependenciesChains":[["root","vuln"]],"CVE":"CVE-2024-1234","fixVersion":"1.2.3"}}`, string(b))
 }
 
 type BadResult struct{}
