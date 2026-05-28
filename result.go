@@ -2,6 +2,7 @@ package codacytool
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 )
@@ -26,6 +27,9 @@ type Issue struct {
 }
 
 func (i Issue) ToJSON() ([]byte, error) {
+	if len(i.ExtraFields) > 0 && !json.Valid(i.ExtraFields) {
+		return nil, errors.New("invalid JSON in ExtraFields")
+	}
 	return json.Marshal(i)
 }
 func (i Issue) GetFile() string {

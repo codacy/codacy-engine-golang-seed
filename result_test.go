@@ -80,6 +80,13 @@ func TestIssueExtraFieldsSerializedWhenSet(t *testing.T) {
 	assert.JSONEq(t, `{"patternId":"p","filename":"f","line":1,"message":"m","extraFields":{"dependenciesChains":[["root","vuln"]],"CVE":"CVE-2024-1234","fixVersion":"1.2.3"}}`, string(b))
 }
 
+func TestIssueExtraFieldsInvalidJSONReturnsError(t *testing.T) {
+	extra := json.RawMessage(`{"invalid":`)
+	issue := Issue{PatternID: "p", File: "f", Line: 1, Message: "m", ExtraFields: extra}
+	_, err := issue.ToJSON()
+	assert.Error(t, err)
+}
+
 type BadResult struct{}
 
 func (r BadResult) ToJSON() ([]byte, error) {
